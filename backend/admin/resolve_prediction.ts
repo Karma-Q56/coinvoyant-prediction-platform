@@ -46,13 +46,14 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
       const prediction = await tx.queryRow<{
         id: number;
         options: string[];
+        odds: Record<string, number>;
       }>`
         UPDATE predictions
         SET status = 'resolved',
             correct_option = ${req.correctOption},
             resolved_at = NOW()
         WHERE id = ${req.predictionId} AND status = 'open'
-        RETURNING id, options
+        RETURNING id, options, odds
       `;
 
       if (!prediction) {
@@ -78,9 +79,10 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
       const userTx = await userDB.begin();
 
       try {
-        // Distribute rewards (2x PT spent)
+        const oddsMultiplier = prediction.odds[req.correctOption] || 2;
+        
         for (const vote of winningVotes) {
-          const reward = vote.pt_spent * 2;
+          const reward = Math.floor(vote.pt_spent * oddsMultiplier);
           totalPtDistributed += reward;
 
           await userTx.exec`
@@ -93,7 +95,7 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
 
           await userTx.exec`
             INSERT INTO transactions (user_id, type, amount, currency, description)
-            VALUES (${vote.user_id}, 'win', ${reward}, 'PT', 'Prediction win reward')
+            VALUES (${vote.user_id}, 'win', ${reward}, 'PT', 'Prediction win reward (${oddsMultiplier}x)')
           `;
         }
 
