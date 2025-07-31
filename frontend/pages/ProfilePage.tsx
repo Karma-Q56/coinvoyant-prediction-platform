@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail, Calendar, Trophy, Target, Coins } from 'lucide-react';
+import { User, Mail, Calendar, Trophy, Target, Coins, Settings } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function ProfilePage() {
@@ -23,15 +23,15 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="text-center py-12">
-        <h1 className="text-3xl font-bold mb-4">Please sign in to view your profile</h1>
+      <div className="text-center py-12 px-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Please sign in to view your profile</h1>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Profile</h1>
+    <div className="space-y-6 px-4">
+      <h1 className="text-2xl md:text-3xl font-bold">Profile & Settings</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Info */}
@@ -56,7 +56,7 @@ export default function ProfilePage() {
                   <Label className="text-gray-300">Email</Label>
                   <div className="p-3 bg-gray-700 rounded text-white flex items-center space-x-2">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span>{profile?.email}</span>
+                    <span className="break-all">{profile?.email}</span>
                   </div>
                 </div>
               </div>
@@ -73,10 +73,13 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Change Password */}
+          {/* Settings */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
-              <CardTitle className="text-white">Change Password</CardTitle>
+              <CardTitle className="flex items-center space-x-2 text-white">
+                <Settings className="h-5 w-5" />
+                <span>Account Settings</span>
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {isEditing ? (
@@ -103,7 +106,7 @@ export default function ProfilePage() {
                     />
                   </div>
 
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
                       onClick={() => {
                         // TODO: Implement password change
@@ -111,7 +114,7 @@ export default function ProfilePage() {
                         setNewPassword('');
                         setConfirmPassword('');
                       }}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                     >
                       Save Changes
                     </Button>
@@ -122,6 +125,7 @@ export default function ProfilePage() {
                         setNewPassword('');
                         setConfirmPassword('');
                       }}
+                      className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
                       Cancel
                     </Button>
@@ -131,6 +135,7 @@ export default function ProfilePage() {
                 <Button
                   onClick={() => setIsEditing(true)}
                   variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                 >
                   Change Password
                 </Button>
@@ -213,7 +218,7 @@ export default function ProfilePage() {
               <CardTitle className="text-white">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button className="w-full" variant="outline">
+              <Button className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white" variant="outline">
                 <Target className="h-4 w-4 mr-2" />
                 <span>View Predictions</span>
               </Button>

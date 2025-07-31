@@ -103,31 +103,31 @@ export default function PredictionsPage() {
 
   if (!user) {
     return (
-      <div className="text-center py-12">
-        <h1 className="text-3xl font-bold mb-4">Please sign in to view predictions</h1>
+      <div className="text-center py-12 px-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Please sign in to view predictions</h1>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <h1 className="text-3xl font-bold mb-4 text-red-400">Error loading predictions</h1>
+      <div className="text-center py-12 px-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-red-400">Error loading predictions</h1>
         <p className="text-gray-400">Please try refreshing the page</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Predictions</h1>
-        <div className="flex items-center space-x-4">
+    <div className="space-y-6 px-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+        <h1 className="text-2xl md:text-3xl font-bold">Predictions</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <div className="text-sm">
             <span className="text-purple-400">🔮 {user.ptBalance} PT</span>
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-48 bg-gray-800 border-gray-700">
+            <SelectTrigger className="w-full sm:w-48 bg-gray-800 border-gray-700">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -152,14 +152,14 @@ export default function PredictionsPage() {
             <Card key={prediction.id} className="bg-gray-800 border-gray-700">
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg text-white pr-4">
+                  <CardTitle className="text-base md:text-lg text-white pr-4">
                     {prediction.question}
                   </CardTitle>
                   <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded whitespace-nowrap">
                     {prediction.category}
                   </span>
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-400">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0 text-sm text-gray-400">
                   <div className="flex items-center space-x-1">
                     <Target className="h-4 w-4" />
                     <span>Min: {prediction.requiredPt} PT</span>
@@ -171,11 +171,11 @@ export default function PredictionsPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {prediction.options.map((option) => (
                     <div key={option} className="p-3 bg-gray-700 rounded text-center">
-                      <div className="font-medium text-white">{option}</div>
-                      <div className="text-sm text-gray-400 mt-1">
+                      <div className="font-medium text-white text-sm">{option}</div>
+                      <div className="text-xs text-gray-400 mt-1">
                         {prediction.voteCounts[option] || 0} votes
                       </div>
                     </div>
@@ -213,11 +213,11 @@ export default function PredictionsPage() {
                       />
                     </div>
 
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                       <Button
                         onClick={() => handleVote(prediction.id)}
                         disabled={voteMutation.isPending}
-                        className="flex-1 bg-green-600 hover:bg-green-700"
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                       >
                         {voteMutation.isPending ? 'Submitting...' : 'Submit Vote'}
                       </Button>
@@ -228,7 +228,7 @@ export default function PredictionsPage() {
                           setSelectedOption('');
                           setPtAmount('');
                         }}
-                        className="flex-1"
+                        className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                       >
                         Cancel
                       </Button>
@@ -237,7 +237,7 @@ export default function PredictionsPage() {
                 ) : (
                   <Button
                     onClick={() => setVotingPrediction(prediction.id)}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                     disabled={new Date() > new Date(prediction.closesAt)}
                   >
                     {new Date() > new Date(prediction.closesAt) ? 'Closed' : 'Make Prediction'}

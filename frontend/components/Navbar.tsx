@@ -1,135 +1,154 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const NavLink = ({ to, icon: Icon, children, onClick }: { to: string; icon: any; children: React.ReactNode; onClick?: () => void }) => (
+    <Link to={to} onClick={onClick}>
+      <Button
+        variant={isActive(to) ? 'default' : 'ghost'}
+        size="sm"
+        className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-700"
+      >
+        <Icon className="h-4 w-4 mr-2" />
+        <span>{children}</span>
+      </Button>
+    </Link>
+  );
+
+  const closeSheet = () => setIsOpen(false);
 
   return (
     <nav className="bg-gray-800 border-b border-gray-700">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <Coins className="h-8 w-8 text-indigo-400" />
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <Coins className="h-6 w-6 md:h-8 md:w-8 text-indigo-400" />
+            <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
               CoinVoyant
             </span>
           </Link>
 
-          <div className="flex items-center space-x-4">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-4">
             {user ? (
               <>
-                <Link to="/">
-                  <Button
-                    variant={isActive('/') ? 'default' : 'ghost'}
-                    size="sm"
-                    className="flex items-center space-x-1"
-                  >
-                    <Home className="h-4 w-4" />
-                    <span>Home</span>
-                  </Button>
-                </Link>
-                
-                <Link to="/predictions">
-                  <Button
-                    variant={isActive('/predictions') ? 'default' : 'ghost'}
-                    size="sm"
-                    className="flex items-center space-x-1"
-                  >
-                    <Target className="h-4 w-4" />
-                    <span>Predictions</span>
-                  </Button>
-                </Link>
+                <NavLink to="/" icon={Home}>Home</NavLink>
+                <NavLink to="/predictions" icon={Target}>Predictions</NavLink>
+                <NavLink to="/my-predictions" icon={Trophy}>My Predictions</NavLink>
+                <NavLink to="/sweepstakes" icon={Gift}>Sweepstakes</NavLink>
+                <NavLink to="/wallet" icon={Wallet}>Wallet</NavLink>
+                <NavLink to="/leaderboard" icon={Trophy}>Leaderboard</NavLink>
 
-                <Link to="/my-predictions">
-                  <Button
-                    variant={isActive('/my-predictions') ? 'default' : 'ghost'}
-                    size="sm"
-                    className="flex items-center space-x-1"
-                  >
-                    <Trophy className="h-4 w-4" />
-                    <span>My Predictions</span>
-                  </Button>
-                </Link>
-
-                <Link to="/sweepstakes">
-                  <Button
-                    variant={isActive('/sweepstakes') ? 'default' : 'ghost'}
-                    size="sm"
-                    className="flex items-center space-x-1"
-                  >
-                    <Gift className="h-4 w-4" />
-                    <span>Sweepstakes</span>
-                  </Button>
-                </Link>
-
-                <Link to="/wallet">
-                  <Button
-                    variant={isActive('/wallet') ? 'default' : 'ghost'}
-                    size="sm"
-                    className="flex items-center space-x-1"
-                  >
-                    <Wallet className="h-4 w-4" />
-                    <span>Wallet</span>
-                  </Button>
-                </Link>
-
-                <Link to="/leaderboard">
-                  <Button
-                    variant={isActive('/leaderboard') ? 'default' : 'ghost'}
-                    size="sm"
-                    className="flex items-center space-x-1"
-                  >
-                    <Trophy className="h-4 w-4" />
-                    <span>Leaderboard</span>
-                  </Button>
-                </Link>
-
-                <div className="flex items-center space-x-2 text-sm">
+                <div className="flex items-center space-x-2 text-sm px-2">
                   <span className="text-yellow-400">🪙 {user.etBalance}</span>
                   <span className="text-purple-400">🔮 {user.ptBalance}</span>
                 </div>
 
-                <Link to="/profile">
-                  <Button
-                    variant={isActive('/profile') ? 'default' : 'ghost'}
-                    size="sm"
-                    className="flex items-center space-x-1"
-                  >
-                    <User className="h-4 w-4" />
-                    <span>{user.username}</span>
-                  </Button>
-                </Link>
+                <NavLink to="/profile" icon={User}>{user.username}</NavLink>
 
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={logout}
-                  className="flex items-center space-x-1"
+                  className="text-gray-300 hover:text-white hover:bg-gray-700"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4 mr-2" />
                   <span>Logout</span>
                 </Button>
               </>
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-700">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="sm">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
                     Sign Up
                   </Button>
                 </Link>
               </>
             )}
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="lg:hidden flex items-center space-x-2">
+            {user && (
+              <div className="flex items-center space-x-2 text-xs">
+                <span className="text-yellow-400">🪙 {user.etBalance}</span>
+                <span className="text-purple-400">🔮 {user.ptBalance}</span>
+              </div>
+            )}
+            
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64 bg-gray-800 border-gray-700">
+                <div className="flex flex-col space-y-4 mt-8">
+                  {user ? (
+                    <>
+                      <div className="text-center pb-4 border-b border-gray-700">
+                        <div className="text-white font-semibold">{user.username}</div>
+                        <div className="flex justify-center space-x-4 text-sm mt-2">
+                          <span className="text-yellow-400">🪙 {user.etBalance}</span>
+                          <span className="text-purple-400">🔮 {user.ptBalance}</span>
+                        </div>
+                      </div>
+                      
+                      <NavLink to="/" icon={Home} onClick={closeSheet}>Home</NavLink>
+                      <NavLink to="/predictions" icon={Target} onClick={closeSheet}>Predictions</NavLink>
+                      <NavLink to="/my-predictions" icon={Trophy} onClick={closeSheet}>My Predictions</NavLink>
+                      <NavLink to="/sweepstakes" icon={Gift} onClick={closeSheet}>Sweepstakes</NavLink>
+                      <NavLink to="/wallet" icon={Wallet} onClick={closeSheet}>Wallet</NavLink>
+                      <NavLink to="/leaderboard" icon={Trophy} onClick={closeSheet}>Leaderboard</NavLink>
+                      <NavLink to="/profile" icon={Settings} onClick={closeSheet}>Profile & Settings</NavLink>
+
+                      <div className="pt-4 border-t border-gray-700">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            logout();
+                            closeSheet();
+                          }}
+                          className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-700"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          <span>Logout</span>
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/login" onClick={closeSheet}>
+                        <Button variant="ghost" size="sm" className="w-full text-gray-300 hover:text-white hover:bg-gray-700">
+                          Sign In
+                        </Button>
+                      </Link>
+                      <Link to="/register" onClick={closeSheet}>
+                        <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                          Sign Up
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
