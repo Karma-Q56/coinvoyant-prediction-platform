@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings } from 'lucide-react';
+import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -48,6 +48,7 @@ export default function Navbar() {
                 <NavLink to="/sweepstakes" icon={Gift}>Sweepstakes</NavLink>
                 <NavLink to="/wallet" icon={Wallet}>Wallet</NavLink>
                 <NavLink to="/leaderboard" icon={Trophy}>Leaderboard</NavLink>
+                <NavLink to="/admin" icon={Shield}>Admin</NavLink>
 
                 <div className="flex items-center space-x-2 text-sm px-2">
                   <span className="text-yellow-400">🪙 {user.etBalance}</span>
@@ -115,6 +116,7 @@ export default function Navbar() {
                       <NavLink to="/sweepstakes" icon={Gift} onClick={closeSheet}>Sweepstakes</NavLink>
                       <NavLink to="/wallet" icon={Wallet} onClick={closeSheet}>Wallet</NavLink>
                       <NavLink to="/leaderboard" icon={Trophy} onClick={closeSheet}>Leaderboard</NavLink>
+                      <NavLink to="/admin" icon={Shield} onClick={closeSheet}>Admin</NavLink>
                       <NavLink to="/profile" icon={Settings} onClick={closeSheet}>Profile & Settings</NavLink>
 
                       <div className="pt-4 border-t border-gray-700">
