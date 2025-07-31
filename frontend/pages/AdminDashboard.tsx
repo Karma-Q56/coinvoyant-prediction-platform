@@ -237,7 +237,7 @@ export default function AdminDashboard() {
   if (!user) {
     return (
       <div className="text-center py-12 px-4">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4">Please sign in to access admin</h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-white">Please sign in to access admin</h1>
       </div>
     );
   }
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
   if (isCheckingAdmin) {
     return (
       <div className="text-center py-12 px-4">
-        <div className="text-lg">Checking admin access...</div>
+        <div className="text-lg text-gray-200 font-medium">Checking admin access...</div>
       </div>
     );
   }
@@ -255,20 +255,20 @@ export default function AdminDashboard() {
       <div className="text-center py-12 px-4">
         <Shield className="h-16 w-16 text-red-400 mx-auto mb-4" />
         <h1 className="text-2xl md:text-3xl font-bold mb-4 text-red-400">Access Denied</h1>
-        <p className="text-gray-400">You do not have admin privileges to access this page.</p>
+        <p className="text-gray-200 font-medium">You do not have admin privileges to access this page.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 px-4">
-      <h1 className="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-white">Admin Dashboard</h1>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-200">Total Users</CardTitle>
             <Users className="h-4 w-4 text-indigo-400" />
           </CardHeader>
           <CardContent>
@@ -278,7 +278,7 @@ export default function AdminDashboard() {
 
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Active Predictions</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-200">Active Predictions</CardTitle>
             <Target className="h-4 w-4 text-green-400" />
           </CardHeader>
           <CardContent>
@@ -288,7 +288,7 @@ export default function AdminDashboard() {
 
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">ET in Circulation</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-200">ET in Circulation</CardTitle>
             <TrendingUp className="h-4 w-4 text-yellow-400" />
           </CardHeader>
           <CardContent>
@@ -298,7 +298,7 @@ export default function AdminDashboard() {
 
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Open Sweepstakes</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-200">Open Sweepstakes</CardTitle>
             <Gift className="h-4 w-4 text-pink-400" />
           </CardHeader>
           <CardContent>
@@ -317,35 +317,35 @@ export default function AdminDashboard() {
             {showCreatePrediction ? (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Question</Label>
+                  <Label className="text-gray-200 font-medium">Question</Label>
                   <Textarea
                     value={predictionForm.question}
                     onChange={(e) => setPredictionForm({ ...predictionForm, question: e.target.value })}
-                    className="bg-gray-700 border-gray-600"
+                    className="bg-gray-700 border-gray-600 text-white"
                     placeholder="Enter prediction question"
                   />
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Category</Label>
+                    <Label className="text-gray-200 font-medium">Category</Label>
                     <Input
                       value={predictionForm.category}
                       onChange={(e) => setPredictionForm({ ...predictionForm, category: e.target.value })}
-                      className="bg-gray-700 border-gray-600"
+                      className="bg-gray-700 border-gray-600 text-white"
                       placeholder="e.g., Sports, Gaming, News"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Type</Label>
+                    <Label className="text-gray-200 font-medium">Type</Label>
                     <Select 
                       value={predictionForm.predictionType} 
                       onValueChange={(value: 'daily' | 'long_term') => 
                         setPredictionForm({ ...predictionForm, predictionType: value })
                       }
                     >
-                      <SelectTrigger className="bg-gray-700 border-gray-600">
+                      <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -357,19 +357,19 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Image URL (Optional)</Label>
+                  <Label className="text-gray-200 font-medium">Image URL (Optional)</Label>
                   <div className="flex space-x-2">
                     <Input
                       value={predictionForm.imageUrl}
                       onChange={(e) => setPredictionForm({ ...predictionForm, imageUrl: e.target.value })}
-                      className="bg-gray-700 border-gray-600"
+                      className="bg-gray-700 border-gray-600 text-white"
                       placeholder="https://example.com/image.jpg"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                      className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
                     >
                       <Image className="h-4 w-4" />
                     </Button>
@@ -377,13 +377,13 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Options</Label>
+                  <Label className="text-gray-200 font-medium">Options</Label>
                   {predictionForm.options.map((option, index) => (
                     <div key={index} className="flex space-x-2">
                       <Input
                         value={option}
                         onChange={(e) => updatePredictionOption(index, e.target.value)}
-                        className="bg-gray-700 border-gray-600"
+                        className="bg-gray-700 border-gray-600 text-white"
                         placeholder={`Option ${index + 1}`}
                       />
                       {predictionForm.options.length > 2 && (
@@ -391,7 +391,7 @@ export default function AdminDashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() => removePredictionOption(index)}
-                          className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                          className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
                         >
                           Remove
                         </Button>
@@ -402,7 +402,7 @@ export default function AdminDashboard() {
                     variant="outline"
                     size="sm"
                     onClick={addPredictionOption}
-                    className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    className="w-full border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Option
@@ -411,23 +411,23 @@ export default function AdminDashboard() {
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Minimum PT</Label>
+                    <Label className="text-gray-200 font-medium">Minimum PT</Label>
                     <Input
                       type="number"
                       value={predictionForm.requiredPt}
                       onChange={(e) => setPredictionForm({ ...predictionForm, requiredPt: parseInt(e.target.value) || 1 })}
-                      className="bg-gray-700 border-gray-600"
+                      className="bg-gray-700 border-gray-600 text-white"
                       min="1"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Closes At</Label>
+                    <Label className="text-gray-200 font-medium">Closes At</Label>
                     <Input
                       type="datetime-local"
                       value={predictionForm.closesAt}
                       onChange={(e) => setPredictionForm({ ...predictionForm, closesAt: e.target.value })}
-                      className="bg-gray-700 border-gray-600"
+                      className="bg-gray-700 border-gray-600 text-white"
                     />
                   </div>
                 </div>
@@ -436,14 +436,14 @@ export default function AdminDashboard() {
                   <Button
                     onClick={handleCreatePrediction}
                     disabled={createPredictionMutation.isPending}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold"
                   >
                     {createPredictionMutation.isPending ? 'Creating...' : 'Create Prediction'}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setShowCreatePrediction(false)}
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    className="flex-1 border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white font-medium"
                   >
                     Cancel
                   </Button>
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
             ) : (
               <Button
                 onClick={() => setShowCreatePrediction(true)}
-                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Prediction
@@ -469,49 +469,49 @@ export default function AdminDashboard() {
             {showCreateSweepstakes ? (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Title</Label>
+                  <Label className="text-gray-200 font-medium">Title</Label>
                   <Input
                     value={sweepstakesForm.title}
                     onChange={(e) => setSweepstakesForm({ ...sweepstakesForm, title: e.target.value })}
-                    className="bg-gray-700 border-gray-600"
+                    className="bg-gray-700 border-gray-600 text-white"
                     placeholder="Sweepstakes title"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Description</Label>
+                  <Label className="text-gray-200 font-medium">Description</Label>
                   <Textarea
                     value={sweepstakesForm.description}
                     onChange={(e) => setSweepstakesForm({ ...sweepstakesForm, description: e.target.value })}
-                    className="bg-gray-700 border-gray-600"
+                    className="bg-gray-700 border-gray-600 text-white"
                     placeholder="Optional description"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Prize</Label>
+                  <Label className="text-gray-200 font-medium">Prize</Label>
                   <Input
                     value={sweepstakesForm.prize}
                     onChange={(e) => setSweepstakesForm({ ...sweepstakesForm, prize: e.target.value })}
-                    className="bg-gray-700 border-gray-600"
+                    className="bg-gray-700 border-gray-600 text-white"
                     placeholder="Prize description"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Image URL (Optional)</Label>
+                  <Label className="text-gray-200 font-medium">Image URL (Optional)</Label>
                   <div className="flex space-x-2">
                     <Input
                       value={sweepstakesForm.imageUrl}
                       onChange={(e) => setSweepstakesForm({ ...sweepstakesForm, imageUrl: e.target.value })}
-                      className="bg-gray-700 border-gray-600"
+                      className="bg-gray-700 border-gray-600 text-white"
                       placeholder="https://example.com/image.jpg"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                      className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
                     >
                       <Image className="h-4 w-4" />
                     </Button>
@@ -520,25 +520,25 @@ export default function AdminDashboard() {
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Entry Cost</Label>
+                    <Label className="text-gray-200 font-medium">Entry Cost</Label>
                     <Input
                       type="number"
                       value={sweepstakesForm.entryCost}
                       onChange={(e) => setSweepstakesForm({ ...sweepstakesForm, entryCost: parseInt(e.target.value) || 0 })}
-                      className="bg-gray-700 border-gray-600"
+                      className="bg-gray-700 border-gray-600 text-white"
                       min="0"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Currency</Label>
+                    <Label className="text-gray-200 font-medium">Currency</Label>
                     <Select 
                       value={sweepstakesForm.entryCurrency} 
                       onValueChange={(value: 'ET' | 'PT') => 
                         setSweepstakesForm({ ...sweepstakesForm, entryCurrency: value })
                       }
                     >
-                      <SelectTrigger className="bg-gray-700 border-gray-600">
+                      <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -549,12 +549,12 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Draw Date (Optional)</Label>
+                    <Label className="text-gray-200 font-medium">Draw Date (Optional)</Label>
                     <Input
                       type="datetime-local"
                       value={sweepstakesForm.drawDate}
                       onChange={(e) => setSweepstakesForm({ ...sweepstakesForm, drawDate: e.target.value })}
-                      className="bg-gray-700 border-gray-600"
+                      className="bg-gray-700 border-gray-600 text-white"
                     />
                   </div>
                 </div>
@@ -563,14 +563,14 @@ export default function AdminDashboard() {
                   <Button
                     onClick={handleCreateSweepstakes}
                     disabled={createSweepstakesMutation.isPending}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold"
                   >
                     {createSweepstakesMutation.isPending ? 'Creating...' : 'Create Sweepstakes'}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setShowCreateSweepstakes(false)}
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    className="flex-1 border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white font-medium"
                   >
                     Cancel
                   </Button>
@@ -579,7 +579,7 @@ export default function AdminDashboard() {
             ) : (
               <Button
                 onClick={() => setShowCreateSweepstakes(true)}
-                className="w-full bg-pink-600 hover:bg-pink-700"
+                className="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Sweepstakes
@@ -602,10 +602,10 @@ export default function AdminDashboard() {
                   <div className="flex-1">
                     <h3 className="font-semibold text-white">{prediction.question}</h3>
                     <div className="flex items-center space-x-2 mt-1">
-                      <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded">
+                      <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
                         {prediction.category}
                       </span>
-                      <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">
+                      <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded font-medium">
                         {prediction.predictionType === 'daily' ? 'Daily' : 'Long Term'}
                       </span>
                     </div>
@@ -618,14 +618,14 @@ export default function AdminDashboard() {
                     />
                   )}
                 </div>
-                <div className="text-sm text-gray-400 mb-3">
+                <div className="text-sm text-gray-200 mb-3 font-medium">
                   Closes: {new Date(prediction.closesAt).toLocaleString()}
                 </div>
                 <div className="flex space-x-2 mb-3">
                   {prediction.options.map((option) => (
                     <div key={option} className="flex-1 text-center p-2 bg-gray-600 rounded text-sm">
-                      {option}
-                      <div className="text-xs text-gray-400 mt-1">
+                      <div className="text-white font-medium">{option}</div>
+                      <div className="text-xs text-gray-200 mt-1 font-medium">
                         {prediction.voteCounts[option] || 0} votes
                       </div>
                     </div>
@@ -641,7 +641,7 @@ export default function AdminDashboard() {
                         correctOption: option,
                       })}
                       disabled={resolvePredictionMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-xs"
+                      className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold"
                     >
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Resolve: {option}
@@ -651,7 +651,7 @@ export default function AdminDashboard() {
               </div>
             ))}
             {predictions?.predictions.filter(p => p.status === 'open').length === 0 && (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-gray-200 font-medium">
                 No open predictions to manage
               </div>
             )}

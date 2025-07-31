@@ -39,7 +39,11 @@ export default function Navbar() {
       <Button
         variant={isActive(to) ? 'default' : 'ghost'}
         size="sm"
-        className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-700"
+        className={`w-full justify-start ${
+          isActive(to) 
+            ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+            : 'text-gray-200 hover:text-white hover:bg-gray-700'
+        }`}
       >
         <Icon className="h-4 w-4 mr-2" />
         <span>{children}</span>
@@ -75,8 +79,8 @@ export default function Navbar() {
                 )}
 
                 <div className="flex items-center space-x-2 text-sm px-2">
-                  <span className="text-yellow-400">🪙 {user.etBalance}</span>
-                  <span className="text-purple-400">🔮 {user.ptBalance}</span>
+                  <span className="text-yellow-400 font-medium">🪙 {user.etBalance}</span>
+                  <span className="text-purple-400 font-medium">🔮 {user.ptBalance}</span>
                 </div>
 
                 <NavLink to="/profile" icon={User}>{user.username}</NavLink>
@@ -85,7 +89,7 @@ export default function Navbar() {
                   variant="ghost"
                   size="sm"
                   onClick={logout}
-                  className="text-gray-300 hover:text-white hover:bg-gray-700"
+                  className="text-gray-200 hover:text-white hover:bg-gray-700"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   <span>Logout</span>
@@ -94,12 +98,12 @@ export default function Navbar() {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-700">
+                  <Button variant="ghost" size="sm" className="text-gray-200 hover:text-white hover:bg-gray-700 font-medium">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
                     Sign Up
                   </Button>
                 </Link>
@@ -111,14 +115,14 @@ export default function Navbar() {
           <div className="lg:hidden flex items-center space-x-2">
             {user && (
               <div className="flex items-center space-x-2 text-xs">
-                <span className="text-yellow-400">🪙 {user.etBalance}</span>
-                <span className="text-purple-400">🔮 {user.ptBalance}</span>
+                <span className="text-yellow-400 font-medium">🪙 {user.etBalance}</span>
+                <span className="text-purple-400 font-medium">🔮 {user.ptBalance}</span>
               </div>
             )}
             
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+                <Button variant="ghost" size="sm" className="text-gray-200 hover:text-white">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -129,8 +133,8 @@ export default function Navbar() {
                       <div className="text-center pb-4 border-b border-gray-700">
                         <div className="text-white font-semibold">{user.username}</div>
                         <div className="flex justify-center space-x-4 text-sm mt-2">
-                          <span className="text-yellow-400">🪙 {user.etBalance}</span>
-                          <span className="text-purple-400">🔮 {user.ptBalance}</span>
+                          <span className="text-yellow-400 font-medium">🪙 {user.etBalance}</span>
+                          <span className="text-purple-400 font-medium">🔮 {user.ptBalance}</span>
                         </div>
                       </div>
                       
@@ -153,7 +157,7 @@ export default function Navbar() {
                             logout();
                             closeSheet();
                           }}
-                          className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-700"
+                          className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
                         >
                           <LogOut className="h-4 w-4 mr-2" />
                           <span>Logout</span>
@@ -163,12 +167,12 @@ export default function Navbar() {
                   ) : (
                     <>
                       <Link to="/login" onClick={closeSheet}>
-                        <Button variant="ghost" size="sm" className="w-full text-gray-300 hover:text-white hover:bg-gray-700">
+                        <Button variant="ghost" size="sm" className="w-full text-gray-200 hover:text-white hover:bg-gray-700 font-medium">
                           Sign In
                         </Button>
                       </Link>
                       <Link to="/register" onClick={closeSheet}>
-                        <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                        <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
                           Sign Up
                         </Button>
                       </Link>

@@ -29,11 +29,11 @@ export default function HomePage() {
 
   const getPredictionTypeBadge = (type: string) => {
     return type === 'daily' ? 
-      <Badge className="bg-orange-600 text-white">
+      <Badge className="bg-orange-600 text-white font-medium">
         <Zap className="h-3 w-3 mr-1" />
         Daily
       </Badge> :
-      <Badge className="bg-blue-600 text-white">
+      <Badge className="bg-blue-600 text-white font-medium">
         <Calendar className="h-3 w-3 mr-1" />
         Long Term
       </Badge>;
@@ -49,7 +49,7 @@ export default function HomePage() {
         <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
           Welcome to CoinVoyant
         </h1>
-        <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto px-4">
+        <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto px-4 font-medium">
           The ultimate prediction-based entertainment platform where your insights become rewards. 
           Use tokens to predict real-world events, compete with others, and win amazing prizes!
         </p>
@@ -57,12 +57,12 @@ export default function HomePage() {
         {!user && (
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 px-4">
             <Link to="/register">
-              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white">
+              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold">
                 Get Started Free
               </Button>
             </Link>
             <Link to="/predictions">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white font-semibold">
                 Browse Predictions
               </Button>
             </Link>
@@ -78,7 +78,7 @@ export default function HomePage() {
             <CardContent className="p-6 md:p-8">
               <Target className="h-12 w-12 md:h-16 md:w-16 text-indigo-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Make Predictions</h3>
-              <p className="text-gray-300">
+              <p className="text-gray-200 font-medium">
                 Use PredictTokens (PT) to vote on upcoming events across sports, entertainment, politics, and more.
               </p>
             </CardContent>
@@ -88,7 +88,7 @@ export default function HomePage() {
             <CardContent className="p-6 md:p-8">
               <Trophy className="h-12 w-12 md:h-16 md:w-16 text-yellow-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Win Rewards</h3>
-              <p className="text-gray-300">
+              <p className="text-gray-200 font-medium">
                 Correct predictions earn you double your PT back, plus streak bonuses for consecutive wins.
               </p>
             </CardContent>
@@ -98,7 +98,7 @@ export default function HomePage() {
             <CardContent className="p-6 md:p-8">
               <Gift className="h-12 w-12 md:h-16 md:w-16 text-pink-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Enter Sweepstakes</h3>
-              <p className="text-gray-300">
+              <p className="text-gray-200 font-medium">
                 Use Entertainment Tokens (ET) or PredictTokens (PT) to enter sweepstakes for real prizes and exclusive rewards.
               </p>
             </CardContent>
@@ -114,7 +114,7 @@ export default function HomePage() {
             <Star className="h-8 w-8 text-yellow-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Real Rewards</h3>
-              <p className="text-gray-300">Win actual prizes and tokens that have real value in our ecosystem.</p>
+              <p className="text-gray-200 font-medium">Win actual prizes and tokens that have real value in our ecosystem.</p>
             </div>
           </div>
 
@@ -122,7 +122,7 @@ export default function HomePage() {
             <Shield className="h-8 w-8 text-green-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Fair & Transparent</h3>
-              <p className="text-gray-300">All predictions are resolved fairly with transparent results and payouts.</p>
+              <p className="text-gray-200 font-medium">All predictions are resolved fairly with transparent results and payouts.</p>
             </div>
           </div>
 
@@ -130,7 +130,7 @@ export default function HomePage() {
             <Zap className="h-8 w-8 text-purple-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Daily & Long-term Events</h3>
-              <p className="text-gray-300">Choose from quick daily predictions or strategic long-term forecasts.</p>
+              <p className="text-gray-200 font-medium">Choose from quick daily predictions or strategic long-term forecasts.</p>
             </div>
           </div>
 
@@ -138,7 +138,7 @@ export default function HomePage() {
             <TrendingUp className="h-8 w-8 text-blue-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Flexible Betting</h3>
-              <p className="text-gray-300">Bet any amount above the minimum - higher stakes mean higher rewards!</p>
+              <p className="text-gray-200 font-medium">Bet any amount above the minimum - higher stakes mean higher rewards!</p>
             </div>
           </div>
 
@@ -146,7 +146,7 @@ export default function HomePage() {
             <Users className="h-8 w-8 text-indigo-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Community Driven</h3>
-              <p className="text-gray-300">Compete with friends and climb the leaderboards together.</p>
+              <p className="text-gray-200 font-medium">Compete with friends and climb the leaderboards together.</p>
             </div>
           </div>
 
@@ -154,7 +154,7 @@ export default function HomePage() {
             <Coins className="h-8 w-8 text-orange-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Dual Token System</h3>
-              <p className="text-gray-300">ET and PT for different activities - maximize your earning potential.</p>
+              <p className="text-gray-200 font-medium">ET and PT for different activities - maximize your earning potential.</p>
             </div>
           </div>
         </div>
@@ -170,9 +170,9 @@ export default function HomePage() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <CardTitle className="text-base md:text-lg text-white pr-2 mb-2">{prediction.question}</CardTitle>
+                      <CardTitle className="text-base md:text-lg text-white pr-2 mb-2 font-semibold">{prediction.question}</CardTitle>
                       <div className="flex flex-wrap gap-2">
-                        <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded">
+                        <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
                           {prediction.category}
                         </span>
                         {getPredictionTypeBadge(prediction.predictionType)}
@@ -188,17 +188,17 @@ export default function HomePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-300">
+                  <div className="text-sm text-gray-200 font-medium">
                     Min bet: {prediction.requiredPt} PT
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-gray-300 font-medium">
                     Closes: {new Date(prediction.closesAt).toLocaleDateString()}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {prediction.options.map((option) => (
                       <div key={option} className="text-center p-2 bg-gray-700 rounded text-sm">
-                        <div className="text-white">{option}</div>
-                        <div className="text-xs text-gray-400 mt-1">
+                        <div className="text-white font-medium">{option}</div>
+                        <div className="text-xs text-gray-300 mt-1 font-medium">
                           {prediction.voteCounts[option] || 0} votes
                         </div>
                       </div>
@@ -211,7 +211,7 @@ export default function HomePage() {
           
           <div className="text-center">
             <Link to="/predictions">
-              <Button size="lg" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+              <Button size="lg" variant="outline" className="border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white font-semibold">
                 View All Predictions
               </Button>
             </Link>
@@ -222,14 +222,14 @@ export default function HomePage() {
       {/* Loading State */}
       {isLoading && (
         <div className="text-center py-12 px-4">
-          <div className="text-lg text-gray-400">Loading featured predictions...</div>
+          <div className="text-lg text-gray-200 font-medium">Loading featured predictions...</div>
         </div>
       )}
 
       {/* Error State */}
       {error && (
         <div className="text-center py-12 px-4">
-          <div className="text-lg text-gray-400">Unable to load predictions at the moment</div>
+          <div className="text-lg text-gray-200 font-medium">Unable to load predictions at the moment</div>
         </div>
       )}
 
@@ -241,7 +241,7 @@ export default function HomePage() {
               <CardContent className="flex flex-col items-center justify-center p-6 md:p-8 text-center">
                 <Target className="h-10 w-10 md:h-12 md:w-12 text-white mb-4" />
                 <h3 className="text-lg md:text-xl font-bold text-white mb-2">Make Predictions</h3>
-                <p className="text-indigo-100 text-sm">Vote on upcoming events and win PT</p>
+                <p className="text-indigo-100 text-sm font-medium">Vote on upcoming events and win PT</p>
               </CardContent>
             </Card>
           </Link>
@@ -251,7 +251,7 @@ export default function HomePage() {
               <CardContent className="flex flex-col items-center justify-center p-6 md:p-8 text-center">
                 <Gift className="h-10 w-10 md:h-12 md:w-12 text-white mb-4" />
                 <h3 className="text-lg md:text-xl font-bold text-white mb-2">Enter Sweepstakes</h3>
-                <p className="text-pink-100 text-sm">Use ET or PT to enter for amazing prizes</p>
+                <p className="text-pink-100 text-sm font-medium">Use ET or PT to enter for amazing prizes</p>
               </CardContent>
             </Card>
           </Link>
@@ -261,7 +261,7 @@ export default function HomePage() {
               <CardContent className="flex flex-col items-center justify-center p-6 md:p-8 text-center">
                 <Trophy className="h-10 w-10 md:h-12 md:w-12 text-white mb-4" />
                 <h3 className="text-lg md:text-xl font-bold text-white mb-2">Leaderboard</h3>
-                <p className="text-green-100 text-sm">See top players and your ranking</p>
+                <p className="text-green-100 text-sm font-medium">See top players and your ranking</p>
               </CardContent>
             </Card>
           </Link>
@@ -272,7 +272,7 @@ export default function HomePage() {
       {!user && (
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-8 md:p-12 text-center mx-4">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Ready to Start Predicting?</h2>
-          <p className="text-indigo-100 mb-6 text-lg">
+          <p className="text-indigo-100 mb-6 text-lg font-medium">
             Join thousands of users already earning rewards with their predictions!
           </p>
           <Link to="/register">
