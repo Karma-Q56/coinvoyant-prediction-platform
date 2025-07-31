@@ -276,7 +276,7 @@ export default function HomePage() {
             Join thousands of users already earning rewards with their predictions!
           </p>
           <Link to="/register">
-            <Button size="lg" className="bg-white text-indigo-600 hover:bg-gray-100 font-semibold">
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold">
               Sign Up Now - It's Free!
             </Button>
           </Link>
