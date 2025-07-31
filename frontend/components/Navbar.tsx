@@ -1,16 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings } from 'lucide-react';
+import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield } from 'lucide-react';
+import backend from '~backend/client';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Check admin status when user changes
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      try {
+        const result = await backend.admin.checkAdmin({ userId: user.id });
+        setIsAdmin(result.isAdmin);
+      } catch (error) {
+        console.error('Failed to check admin status:', error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const NavLink = ({ to, icon: Icon, children, onClick }: { to: string; icon: any; children: React.ReactNode; onClick?: () => void }) => (
     <Link to={to} onClick={onClick}>
@@ -48,6 +70,9 @@ export default function Navbar() {
                 <NavLink to="/sweepstakes" icon={Gift}>Sweepstakes</NavLink>
                 <NavLink to="/wallet" icon={Wallet}>Wallet</NavLink>
                 <NavLink to="/leaderboard" icon={Trophy}>Leaderboard</NavLink>
+                {isAdmin && (
+                  <NavLink to="/admin" icon={Shield}>Admin</NavLink>
+                )}
 
                 <div className="flex items-center space-x-2 text-sm px-2">
                   <span className="text-yellow-400">🪙 {user.etBalance}</span>
@@ -115,6 +140,9 @@ export default function Navbar() {
                       <NavLink to="/sweepstakes" icon={Gift} onClick={closeSheet}>Sweepstakes</NavLink>
                       <NavLink to="/wallet" icon={Wallet} onClick={closeSheet}>Wallet</NavLink>
                       <NavLink to="/leaderboard" icon={Trophy} onClick={closeSheet}>Leaderboard</NavLink>
+                      {isAdmin && (
+                        <NavLink to="/admin" icon={Shield} onClick={closeSheet}>Admin</NavLink>
+                      )}
                       <NavLink to="/profile" icon={Settings} onClick={closeSheet}>Profile & Settings</NavLink>
 
                       <div className="pt-4 border-t border-gray-700">
