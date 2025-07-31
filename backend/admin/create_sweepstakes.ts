@@ -1,9 +1,11 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { SQLDatabase } from "encore.dev/storage/sqldb";
 
 const sweepstakesDB = SQLDatabase.named("sweepstakes");
+const userDB = SQLDatabase.named("user");
 
 export interface CreateSweepstakesRequest {
+  userId: number;
   title: string;
   description: string;
   prize: string;
@@ -20,10 +22,31 @@ export interface CreateSweepstakesResponse {
   drawDate?: Date;
 }
 
+// List of admin email addresses
+const ADMIN_EMAILS = [
+  // Add your email address here
+  "admin@example.com", // Replace with your actual email
+];
+
 // Creates a new sweepstakes (admin only).
 export const createSweepstakes = api<CreateSweepstakesRequest, CreateSweepstakesResponse>(
   { expose: true, method: "POST", path: "/admin/sweepstakes" },
   async (req) => {
+    // Check if user is admin
+    const user = await userDB.queryRow<{
+      email: string;
+    }>`
+      SELECT email FROM users WHERE id = ${req.userId}
+    `;
+
+    if (!user) {
+      throw APIError.notFound("user not found");
+    }
+
+    if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+      throw APIError.permissionDenied("admin access required");
+    }
+
     const sweepstakes = await sweepstakesDB.queryRow<{
       id: number;
       title: string;

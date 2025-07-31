@@ -1,9 +1,13 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { SQLDatabase } from "encore.dev/storage/sqldb";
 
 const userDB = SQLDatabase.named("user");
 const predictionDB = SQLDatabase.named("prediction");
 const sweepstakesDB = SQLDatabase.named("sweepstakes");
+
+export interface GetStatsRequest {
+  userId: number;
+}
 
 export interface AdminStatsResponse {
   totalUsers: number;
@@ -13,10 +17,31 @@ export interface AdminStatsResponse {
   openSweepstakes: number;
 }
 
+// List of admin email addresses
+const ADMIN_EMAILS = [
+  // Add your email address here
+  "admin@example.com", // Replace with your actual email
+];
+
 // Gets admin dashboard statistics.
-export const getStats = api<void, AdminStatsResponse>(
-  { expose: true, method: "GET", path: "/admin/stats" },
-  async () => {
+export const getStats = api<GetStatsRequest, AdminStatsResponse>(
+  { expose: true, method: "GET", path: "/admin/stats/:userId" },
+  async (req) => {
+    // Check if user is admin
+    const user = await userDB.queryRow<{
+      email: string;
+    }>`
+      SELECT email FROM users WHERE id = ${req.userId}
+    `;
+
+    if (!user) {
+      throw APIError.notFound("user not found");
+    }
+
+    if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+      throw APIError.permissionDenied("admin access required");
+    }
+
     const [userStats, predictionStats, sweepstakesStats] = await Promise.all([
       userDB.queryRow<{
         total_users: number;

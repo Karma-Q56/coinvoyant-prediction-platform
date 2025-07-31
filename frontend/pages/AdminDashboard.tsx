@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,14 +8,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { Users, Target, Gift, TrendingUp, Plus, CheckCircle } from 'lucide-react';
+import { Users, Target, Gift, TrendingUp, Plus, CheckCircle, Shield } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showCreatePrediction, setShowCreatePrediction] = useState(false);
   const [showCreateSweepstakes, setShowCreateSweepstakes] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
   // Prediction form state
   const [predictionForm, setPredictionForm] = useState({
@@ -34,23 +38,48 @@ export default function AdminDashboard() {
     drawDate: '',
   });
 
+  // Check admin status
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setIsCheckingAdmin(false);
+        return;
+      }
+
+      try {
+        const result = await backend.admin.checkAdmin({ userId: user.id });
+        setIsAdmin(result.isAdmin);
+      } catch (error) {
+        console.error('Failed to check admin status:', error);
+        setIsAdmin(false);
+      } finally {
+        setIsCheckingAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
+
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
-    queryFn: () => backend.admin.getStats(),
+    queryFn: () => backend.admin.getStats({ userId: user!.id }),
+    enabled: !!user && isAdmin,
   });
 
   const { data: predictions } = useQuery({
     queryKey: ['admin-predictions'],
     queryFn: () => backend.prediction.listPredictions({}),
+    enabled: isAdmin,
   });
 
   const { data: sweepstakes } = useQuery({
     queryKey: ['admin-sweepstakes'],
     queryFn: () => backend.sweepstakes.listSweepstakes(),
+    enabled: isAdmin,
   });
 
   const createPredictionMutation = useMutation({
-    mutationFn: (data: any) => backend.admin.createPrediction(data),
+    mutationFn: (data: any) => backend.admin.createPrediction({ ...data, userId: user!.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-predictions'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
@@ -78,7 +107,7 @@ export default function AdminDashboard() {
   });
 
   const createSweepstakesMutation = useMutation({
-    mutationFn: (data: any) => backend.admin.createSweepstakes(data),
+    mutationFn: (data: any) => backend.admin.createSweepstakes({ ...data, userId: user!.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-sweepstakes'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
@@ -107,7 +136,7 @@ export default function AdminDashboard() {
 
   const resolvePredictionMutation = useMutation({
     mutationFn: (data: { predictionId: number; correctOption: string }) =>
-      backend.admin.resolvePrediction(data),
+      backend.admin.resolvePrediction({ ...data, userId: user!.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-predictions'] });
       toast({
@@ -193,9 +222,35 @@ export default function AdminDashboard() {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="text-center py-12 px-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Please sign in to access admin</h1>
+      </div>
+    );
+  }
+
+  if (isCheckingAdmin) {
+    return (
+      <div className="text-center py-12 px-4">
+        <div className="text-lg">Checking admin access...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="text-center py-12 px-4">
+        <Shield className="h-16 w-16 text-red-400 mx-auto mb-4" />
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-red-400">Access Denied</h1>
+        <p className="text-gray-400">You do not have admin privileges to access this page.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+    <div className="space-y-6 px-4">
+      <h1 className="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -284,6 +339,7 @@ export default function AdminDashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() => removePredictionOption(index)}
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                         >
                           Remove
                         </Button>
@@ -294,7 +350,7 @@ export default function AdminDashboard() {
                     variant="outline"
                     size="sm"
                     onClick={addPredictionOption}
-                    className="w-full"
+                    className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Option
@@ -335,7 +391,7 @@ export default function AdminDashboard() {
                   <Button
                     variant="outline"
                     onClick={() => setShowCreatePrediction(false)}
-                    className="flex-1"
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
                     Cancel
                   </Button>
@@ -424,7 +480,7 @@ export default function AdminDashboard() {
                   <Button
                     variant="outline"
                     onClick={() => setShowCreateSweepstakes(false)}
-                    className="flex-1"
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
                     Cancel
                   </Button>
@@ -471,7 +527,7 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap gap-2">
                   {prediction.options.map((option) => (
                     <Button
                       key={option}
@@ -481,9 +537,9 @@ export default function AdminDashboard() {
                         correctOption: option,
                       })}
                       disabled={resolvePredictionMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-green-600 hover:bg-green-700 text-xs"
                     >
-                      <CheckCircle className="h-4 w-4 mr-1" />
+                      <CheckCircle className="h-3 w-3 mr-1" />
                       Resolve: {option}
                     </Button>
                   ))}

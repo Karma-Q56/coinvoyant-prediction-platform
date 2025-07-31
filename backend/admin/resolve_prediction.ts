@@ -5,6 +5,7 @@ const predictionDB = SQLDatabase.named("prediction");
 const userDB = SQLDatabase.named("user");
 
 export interface ResolvePredictionRequest {
+  userId: number;
   predictionId: number;
   correctOption: string;
 }
@@ -15,10 +16,31 @@ export interface ResolvePredictionResponse {
   totalPtDistributed: number;
 }
 
+// List of admin email addresses
+const ADMIN_EMAILS = [
+  // Add your email address here
+  "admin@example.com", // Replace with your actual email
+];
+
 // Resolves a prediction and distributes rewards (admin only).
 export const resolvePrediction = api<ResolvePredictionRequest, ResolvePredictionResponse>(
   { expose: true, method: "POST", path: "/admin/predictions/:predictionId/resolve" },
   async (req) => {
+    // Check if user is admin
+    const user = await userDB.queryRow<{
+      email: string;
+    }>`
+      SELECT email FROM users WHERE id = ${req.userId}
+    `;
+
+    if (!user) {
+      throw APIError.notFound("user not found");
+    }
+
+    if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+      throw APIError.permissionDenied("admin access required");
+    }
+
     const tx = await predictionDB.begin();
     try {
       // Update prediction status

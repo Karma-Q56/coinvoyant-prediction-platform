@@ -1,9 +1,11 @@
-import { api } from "encore.dev/api";
+import { api, APIError } from "encore.dev/api";
 import { SQLDatabase } from "encore.dev/storage/sqldb";
 
 const predictionDB = SQLDatabase.named("prediction");
+const userDB = SQLDatabase.named("user");
 
 export interface CreatePredictionRequest {
+  userId: number;
   question: string;
   category: string;
   options: string[];
@@ -20,10 +22,31 @@ export interface CreatePredictionResponse {
   closesAt: Date;
 }
 
+// List of admin email addresses
+const ADMIN_EMAILS = [
+  // Add your email address here
+  "admin@example.com", // Replace with your actual email
+];
+
 // Creates a new prediction (admin only).
 export const createPrediction = api<CreatePredictionRequest, CreatePredictionResponse>(
   { expose: true, method: "POST", path: "/admin/predictions" },
   async (req) => {
+    // Check if user is admin
+    const user = await userDB.queryRow<{
+      email: string;
+    }>`
+      SELECT email FROM users WHERE id = ${req.userId}
+    `;
+
+    if (!user) {
+      throw APIError.notFound("user not found");
+    }
+
+    if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+      throw APIError.permissionDenied("admin access required");
+    }
+
     const prediction = await predictionDB.queryRow<{
       id: number;
       question: string;
