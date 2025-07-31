@@ -21,24 +21,37 @@ export default function PredictionsPage() {
 
   const { data: predictions, isLoading, error } = useQuery({
     queryKey: ['predictions', selectedCategory],
-    queryFn: () => backend.prediction.listPredictions({ 
-      category: selectedCategory || undefined,
-      status: 'open'
-    }),
-    retry: 3,
+    queryFn: async () => {
+      try {
+        const params: any = { status: 'open' };
+        if (selectedCategory) {
+          params.category = selectedCategory;
+        }
+        return await backend.prediction.listPredictions(params);
+      } catch (error) {
+        console.error('Failed to fetch predictions:', error);
+        throw error;
+      }
+    },
+    retry: 2,
     retryDelay: 1000,
+    refetchOnWindowFocus: false,
   });
 
   const voteMutation = useMutation({
-    mutationFn: (data: { predictionId: number; option: string; ptAmount: number }) =>
-      backend.prediction.vote({
-        userId: user!.id,
+    mutationFn: async (data: { predictionId: number; option: string; ptAmount: number }) => {
+      if (!user) throw new Error('User not authenticated');
+      return await backend.prediction.vote({
+        userId: user.id,
         predictionId: data.predictionId,
         option: data.option,
         ptAmount: data.ptAmount,
-      }),
+      });
+    },
     onSuccess: (data) => {
-      updateUser({ ptBalance: data.newPtBalance });
+      if (user) {
+        updateUser({ ptBalance: data.newPtBalance });
+      }
       setVotingPrediction(null);
       setSelectedOption('');
       setPtAmount('');
@@ -113,7 +126,14 @@ export default function PredictionsPage() {
     return (
       <div className="text-center py-12 px-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-4 text-red-400">Error loading predictions</h1>
-        <p className="text-gray-400">Please try refreshing the page</p>
+        <p className="text-gray-400 mb-4">Please try refreshing the page</p>
+        <Button 
+          onClick={() => window.location.reload()} 
+          variant="outline"
+          className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
+        >
+          Refresh Page
+        </Button>
       </div>
     );
   }
@@ -146,9 +166,9 @@ export default function PredictionsPage() {
         <div className="text-center py-12">
           <div className="text-lg">Loading predictions...</div>
         </div>
-      ) : (
+      ) : predictions?.predictions && predictions.predictions.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {predictions?.predictions.map((prediction) => (
+          {predictions.predictions.map((prediction) => (
             <Card key={prediction.id} className="bg-gray-800 border-gray-700">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -247,9 +267,7 @@ export default function PredictionsPage() {
             </Card>
           ))}
         </div>
-      )}
-
-      {predictions?.predictions.length === 0 && (
+      ) : (
         <div className="text-center py-12">
           <TrendingUp className="h-16 w-16 text-gray-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-400 mb-2">No predictions available</h2>

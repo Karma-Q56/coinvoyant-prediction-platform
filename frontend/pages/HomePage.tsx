@@ -4,15 +4,24 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Target, Gift, Trophy, TrendingUp, Coins, Star, Shield, Zap } from 'lucide-react';
+import { Target, Gift, Trophy, TrendingUp, Coins, Star, Shield, Zap, Users } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function HomePage() {
   const { user } = useAuth();
 
-  const { data: predictions } = useQuery({
+  const { data: predictions, isLoading, error } = useQuery({
     queryKey: ['featured-predictions'],
-    queryFn: () => backend.prediction.listPredictions({ status: 'open' }),
+    queryFn: async () => {
+      try {
+        return await backend.prediction.listPredictions({ status: 'open' });
+      } catch (error) {
+        console.error('Failed to fetch predictions:', error);
+        return { predictions: [] };
+      }
+    },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const featuredPredictions = predictions?.predictions.slice(0, 3) || [];
@@ -139,7 +148,7 @@ export default function HomePage() {
       </div>
 
       {/* Featured Predictions */}
-      {featuredPredictions.length > 0 && (
+      {!isLoading && !error && featuredPredictions.length > 0 && (
         <div className="space-y-8 px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-white">Featured Predictions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -182,6 +191,20 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-12 px-4">
+          <div className="text-lg text-gray-400">Loading featured predictions...</div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-12 px-4">
+          <div className="text-lg text-gray-400">Unable to load predictions at the moment</div>
         </div>
       )}
 
