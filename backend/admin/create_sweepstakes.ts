@@ -11,6 +11,8 @@ export interface CreateSweepstakesRequest {
   prize: string;
   entryCost: number;
   drawDate?: Date;
+  imageUrl?: string;
+  entryCurrency: 'ET' | 'PT';
 }
 
 export interface CreateSweepstakesResponse {
@@ -20,6 +22,8 @@ export interface CreateSweepstakesResponse {
   prize: string;
   entryCost: number;
   drawDate?: Date;
+  imageUrl?: string;
+  entryCurrency: string;
 }
 
 // List of admin email addresses
@@ -46,6 +50,11 @@ export const createSweepstakes = api<CreateSweepstakesRequest, CreateSweepstakes
       throw APIError.permissionDenied("admin access required");
     }
 
+    // Validate entry currency
+    if (!['ET', 'PT'].includes(req.entryCurrency)) {
+      throw APIError.invalidArgument("entry currency must be 'ET' or 'PT'");
+    }
+
     const sweepstakes = await sweepstakesDB.queryRow<{
       id: number;
       title: string;
@@ -53,10 +62,12 @@ export const createSweepstakes = api<CreateSweepstakesRequest, CreateSweepstakes
       prize: string;
       entry_cost: number;
       draw_date: Date | null;
+      image_url: string | null;
+      entry_currency: string;
     }>`
-      INSERT INTO sweepstakes (title, description, prize, entry_cost, draw_date)
-      VALUES (${req.title}, ${req.description}, ${req.prize}, ${req.entryCost}, ${req.drawDate || null})
-      RETURNING id, title, description, prize, entry_cost, draw_date
+      INSERT INTO sweepstakes (title, description, prize, entry_cost, draw_date, image_url, entry_currency)
+      VALUES (${req.title}, ${req.description}, ${req.prize}, ${req.entryCost}, ${req.drawDate || null}, ${req.imageUrl || null}, ${req.entryCurrency})
+      RETURNING id, title, description, prize, entry_cost, draw_date, image_url, entry_currency
     `;
 
     return {
@@ -66,6 +77,8 @@ export const createSweepstakes = api<CreateSweepstakesRequest, CreateSweepstakes
       prize: sweepstakes!.prize,
       entryCost: sweepstakes!.entry_cost,
       drawDate: sweepstakes!.draw_date || undefined,
+      imageUrl: sweepstakes!.image_url || undefined,
+      entryCurrency: sweepstakes!.entry_currency,
     };
   }
 );

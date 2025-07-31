@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Target, Gift, Trophy, TrendingUp, Coins, Star, Shield, Zap, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Target, Gift, Trophy, TrendingUp, Coins, Star, Shield, Zap, Users, Calendar } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function HomePage() {
@@ -25,6 +26,18 @@ export default function HomePage() {
   });
 
   const featuredPredictions = predictions?.predictions.slice(0, 3) || [];
+
+  const getPredictionTypeBadge = (type: string) => {
+    return type === 'daily' ? 
+      <Badge className="bg-orange-600 text-white">
+        <Zap className="h-3 w-3 mr-1" />
+        Daily
+      </Badge> :
+      <Badge className="bg-blue-600 text-white">
+        <Calendar className="h-3 w-3 mr-1" />
+        Long Term
+      </Badge>;
+  };
 
   return (
     <div className="space-y-12">
@@ -86,7 +99,7 @@ export default function HomePage() {
               <Gift className="h-12 w-12 md:h-16 md:w-16 text-pink-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Enter Sweepstakes</h3>
               <p className="text-gray-300">
-                Use Entertainment Tokens (ET) to enter sweepstakes for real prizes and exclusive rewards.
+                Use Entertainment Tokens (ET) or PredictTokens (PT) to enter sweepstakes for real prizes and exclusive rewards.
               </p>
             </CardContent>
           </Card>
@@ -116,16 +129,16 @@ export default function HomePage() {
           <div className="flex items-start space-x-4 p-4">
             <Zap className="h-8 w-8 text-purple-400 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Instant Results</h3>
-              <p className="text-gray-300">Get immediate feedback and rewards as soon as events are resolved.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Daily & Long-term Events</h3>
+              <p className="text-gray-300">Choose from quick daily predictions or strategic long-term forecasts.</p>
             </div>
           </div>
 
           <div className="flex items-start space-x-4 p-4">
             <TrendingUp className="h-8 w-8 text-blue-400 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Build Your Streak</h3>
-              <p className="text-gray-300">Consecutive wins build your streak and unlock bonus rewards.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Flexible Betting</h3>
+              <p className="text-gray-300">Bet any amount above the minimum - higher stakes mean higher rewards!</p>
             </div>
           </div>
 
@@ -141,7 +154,7 @@ export default function HomePage() {
             <Coins className="h-8 w-8 text-orange-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Dual Token System</h3>
-              <p className="text-gray-300">ET for sweepstakes, PT for predictions - maximize your earning potential.</p>
+              <p className="text-gray-300">ET and PT for different activities - maximize your earning potential.</p>
             </div>
           </div>
         </div>
@@ -156,15 +169,27 @@ export default function HomePage() {
               <Card key={prediction.id} className="bg-gray-800 border-gray-700 hover:border-indigo-500 transition-colors">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-base md:text-lg text-white pr-2">{prediction.question}</CardTitle>
-                    <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded whitespace-nowrap">
-                      {prediction.category}
-                    </span>
+                    <div className="flex-1">
+                      <CardTitle className="text-base md:text-lg text-white pr-2 mb-2">{prediction.question}</CardTitle>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded">
+                          {prediction.category}
+                        </span>
+                        {getPredictionTypeBadge(prediction.predictionType)}
+                      </div>
+                    </div>
+                    {prediction.imageUrl && (
+                      <img 
+                        src={prediction.imageUrl} 
+                        alt="Prediction" 
+                        className="w-16 h-16 object-cover rounded ml-2 flex-shrink-0"
+                      />
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-sm text-gray-300">
-                    Required: {prediction.requiredPt} PT
+                    Min bet: {prediction.requiredPt} PT
                   </div>
                   <div className="text-sm text-gray-400">
                     Closes: {new Date(prediction.closesAt).toLocaleDateString()}
@@ -226,7 +251,7 @@ export default function HomePage() {
               <CardContent className="flex flex-col items-center justify-center p-6 md:p-8 text-center">
                 <Gift className="h-10 w-10 md:h-12 md:w-12 text-white mb-4" />
                 <h3 className="text-lg md:text-xl font-bold text-white mb-2">Enter Sweepstakes</h3>
-                <p className="text-pink-100 text-sm">Use ET to enter for amazing prizes</p>
+                <p className="text-pink-100 text-sm">Use ET or PT to enter for amazing prizes</p>
               </CardContent>
             </Card>
           </Link>

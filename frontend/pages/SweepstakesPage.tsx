@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-import { Gift, Users, Calendar, Crown } from 'lucide-react';
+import { Gift, Users, Calendar, Crown, Coins } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function SweepstakesPage() {
@@ -34,6 +34,9 @@ export default function SweepstakesPage() {
       if (data.newEtBalance !== undefined) {
         updateUser({ etBalance: data.newEtBalance });
       }
+      if (data.newPtBalance !== undefined) {
+        updateUser({ ptBalance: data.newPtBalance });
+      }
       queryClient.invalidateQueries({ queryKey: ['sweepstakes'] });
       queryClient.invalidateQueries({ queryKey: ['user-entries'] });
       toast({
@@ -59,6 +62,14 @@ export default function SweepstakesPage() {
     return userEntries?.entries.find(e => e.sweepstakesId === sweepstakesId)?.isWinner || false;
   };
 
+  const getCurrencyIcon = (currency: string) => {
+    return currency === 'ET' ? '🪙' : '🔮';
+  };
+
+  const getCurrencyBalance = (currency: string) => {
+    return currency === 'ET' ? user?.etBalance : user?.ptBalance;
+  };
+
   if (!user) {
     return (
       <div className="text-center py-12">
@@ -68,11 +79,12 @@ export default function SweepstakesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Sweepstakes</h1>
-        <div className="text-sm">
+    <div className="space-y-6 px-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+        <h1 className="text-2xl md:text-3xl font-bold">Sweepstakes</h1>
+        <div className="flex items-center space-x-4 text-sm">
           <span className="text-yellow-400">🪙 {user.etBalance} ET</span>
+          <span className="text-purple-400">🔮 {user.ptBalance} PT</span>
         </div>
       </div>
 
@@ -85,25 +97,39 @@ export default function SweepstakesPage() {
           {sweepstakes?.sweepstakes.map((sweepstake) => {
             const userEntryCount = getUserEntryCount(sweepstake.id);
             const isWinner = isUserWinner(sweepstake.id);
+            const userBalance = getCurrencyBalance(sweepstake.entryCurrency) || 0;
+            const canAfford = sweepstake.entryCost === 0 || userBalance >= sweepstake.entryCost;
             
             return (
               <Card key={sweepstake.id} className="bg-gray-800 border-gray-700">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg text-white pr-4">
-                      {sweepstake.title}
-                    </CardTitle>
-                    <div className="flex flex-col space-y-1">
-                      {!sweepstake.isOpen && (
-                        <Badge variant="secondary">Closed</Badge>
-                      )}
-                      {isWinner && (
-                        <Badge className="bg-yellow-600 text-white">
-                          <Crown className="h-3 w-3 mr-1" />
-                          Winner!
+                    <div className="flex-1">
+                      <CardTitle className="text-lg text-white pr-4 mb-2">
+                        {sweepstake.title}
+                      </CardTitle>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {!sweepstake.isOpen && (
+                          <Badge variant="secondary">Closed</Badge>
+                        )}
+                        {isWinner && (
+                          <Badge className="bg-yellow-600 text-white">
+                            <Crown className="h-3 w-3 mr-1" />
+                            Winner!
+                          </Badge>
+                        )}
+                        <Badge className={`${sweepstake.entryCurrency === 'ET' ? 'bg-yellow-600' : 'bg-purple-600'} text-white`}>
+                          {getCurrencyIcon(sweepstake.entryCurrency)} {sweepstake.entryCurrency}
                         </Badge>
-                      )}
+                      </div>
                     </div>
+                    {sweepstake.imageUrl && (
+                      <img 
+                        src={sweepstake.imageUrl} 
+                        alt="Sweepstakes" 
+                        className="w-20 h-20 object-cover rounded ml-4 flex-shrink-0"
+                      />
+                    )}
                   </div>
                   {sweepstake.description && (
                     <p className="text-gray-300 text-sm">{sweepstake.description}</p>
@@ -144,7 +170,9 @@ export default function SweepstakesPage() {
                       {sweepstake.entryCost === 0 ? (
                         <span className="text-green-400">FREE</span>
                       ) : (
-                        <span className="text-yellow-400">{sweepstake.entryCost} ET</span>
+                        <span className={sweepstake.entryCurrency === 'ET' ? 'text-yellow-400' : 'text-purple-400'}>
+                          {getCurrencyIcon(sweepstake.entryCurrency)} {sweepstake.entryCost} {sweepstake.entryCurrency}
+                        </span>
                       )}
                     </div>
                     
@@ -153,7 +181,7 @@ export default function SweepstakesPage() {
                       disabled={
                         !sweepstake.isOpen ||
                         enterMutation.isPending ||
-                        (sweepstake.entryCost > 0 && user.etBalance < sweepstake.entryCost)
+                        !canAfford
                       }
                       className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"
                     >
@@ -161,8 +189,10 @@ export default function SweepstakesPage() {
                     </Button>
                   </div>
 
-                  {sweepstake.entryCost > 0 && user.etBalance < sweepstake.entryCost && (
-                    <p className="text-red-400 text-sm">Insufficient ET balance</p>
+                  {!canAfford && sweepstake.entryCost > 0 && (
+                    <p className="text-red-400 text-sm">
+                      Insufficient {sweepstake.entryCurrency} balance
+                    </p>
                   )}
                 </CardContent>
               </Card>

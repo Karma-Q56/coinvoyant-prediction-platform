@@ -12,6 +12,8 @@ export interface Sweepstakes {
   drawDate?: Date;
   winnerId?: number;
   entryCount: number;
+  imageUrl?: string;
+  entryCurrency: string;
 }
 
 export interface ListSweepstakesResponse {
@@ -32,9 +34,11 @@ export const listSweepstakes = api<void, ListSweepstakesResponse>(
       created_at: Date;
       draw_date: Date | null;
       winner_id: number | null;
+      image_url: string | null;
+      entry_currency: string;
     }>`
       SELECT id, title, description, prize, entry_cost, is_open,
-             created_at, draw_date, winner_id
+             created_at, draw_date, winner_id, image_url, entry_currency
       FROM sweepstakes
       ORDER BY created_at DESC
     `;
@@ -71,6 +75,8 @@ export const listSweepstakes = api<void, ListSweepstakesResponse>(
         drawDate: s.draw_date || undefined,
         winnerId: s.winner_id || undefined,
         entryCount: entryCounts.get(s.id) || 0,
+        imageUrl: s.image_url || undefined,
+        entryCurrency: s.entry_currency,
       })),
     };
   }

@@ -5,6 +5,7 @@ import { Query } from "encore.dev/api";
 export interface ListPredictionsRequest {
   category?: Query<string>;
   status?: Query<string>;
+  predictionType?: Query<string>;
 }
 
 export interface Prediction {
@@ -18,6 +19,8 @@ export interface Prediction {
   createdAt: Date;
   closesAt: Date;
   voteCounts: Record<string, number>;
+  imageUrl?: string;
+  predictionType: string;
 }
 
 export interface ListPredictionsResponse {
@@ -41,9 +44,14 @@ export const listPredictions = api<ListPredictionsRequest, ListPredictionsRespon
       params.push(req.status);
     }
 
+    if (req.predictionType) {
+      whereClause += ` AND p.prediction_type = $${params.length + 1}`;
+      params.push(req.predictionType);
+    }
+
     const query = `
       SELECT p.id, p.question, p.category, p.options, p.status, p.correct_option,
-             p.required_pt, p.created_at, p.closes_at
+             p.required_pt, p.created_at, p.closes_at, p.image_url, p.prediction_type
       FROM predictions p
       ${whereClause}
       ORDER BY p.created_at DESC
@@ -59,6 +67,8 @@ export const listPredictions = api<ListPredictionsRequest, ListPredictionsRespon
       required_pt: number;
       created_at: Date;
       closes_at: Date;
+      image_url: string | null;
+      prediction_type: string;
     }>(query, ...params);
 
     // Get vote counts for each prediction
@@ -97,6 +107,8 @@ export const listPredictions = api<ListPredictionsRequest, ListPredictionsRespon
         createdAt: p.created_at,
         closesAt: p.closes_at,
         voteCounts: voteCounts.get(p.id) || {},
+        imageUrl: p.image_url || undefined,
+        predictionType: p.prediction_type,
       })),
     };
   }

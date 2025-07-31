@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-import { Clock, Target, TrendingUp } from 'lucide-react';
+import { Clock, Target, TrendingUp, Calendar, Zap } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function PredictionsPage() {
@@ -15,17 +16,21 @@ export default function PredictionsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedType, setSelectedType] = useState<string>('');
   const [votingPrediction, setVotingPrediction] = useState<number | null>(null);
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [ptAmount, setPtAmount] = useState<string>('');
 
   const { data: predictions, isLoading, error } = useQuery({
-    queryKey: ['predictions', selectedCategory],
+    queryKey: ['predictions', selectedCategory, selectedType],
     queryFn: async () => {
       try {
         const params: any = { status: 'open' };
         if (selectedCategory) {
           params.category = selectedCategory;
+        }
+        if (selectedType) {
+          params.predictionType = selectedType;
         }
         return await backend.prediction.listPredictions(params);
       } catch (error) {
@@ -71,7 +76,7 @@ export default function PredictionsPage() {
     },
   });
 
-  const handleVote = (predictionId: number) => {
+  const handleVote = (predictionId: number, requiredPt: number) => {
     if (!selectedOption || !ptAmount) {
       toast({
         title: "Missing information",
@@ -86,6 +91,15 @@ export default function PredictionsPage() {
       toast({
         title: "Invalid amount",
         description: "Please enter a valid PT amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount < requiredPt) {
+      toast({
+        title: "Amount too low",
+        description: `Minimum ${requiredPt} PT required`,
         variant: "destructive",
       });
       return;
@@ -112,6 +126,22 @@ export default function PredictionsPage() {
     
     if (days > 0) return `${days}d ${hours}h`;
     return `${hours}h`;
+  };
+
+  const getPredictionTypeIcon = (type: string) => {
+    return type === 'daily' ? <Zap className="h-4 w-4" /> : <Calendar className="h-4 w-4" />;
+  };
+
+  const getPredictionTypeBadge = (type: string) => {
+    return type === 'daily' ? 
+      <Badge className="bg-orange-600 text-white">
+        <Zap className="h-3 w-3 mr-1" />
+        Daily
+      </Badge> :
+      <Badge className="bg-blue-600 text-white">
+        <Calendar className="h-3 w-3 mr-1" />
+        Long Term
+      </Badge>;
   };
 
   if (!user) {
@@ -146,19 +176,31 @@ export default function PredictionsPage() {
           <div className="text-sm">
             <span className="text-purple-400">🔮 {user.ptBalance} PT</span>
           </div>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full sm:w-48 bg-gray-800 border-gray-700">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex space-x-2">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full sm:w-40 bg-gray-800 border-gray-700">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="w-full sm:w-40 bg-gray-800 border-gray-700">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="long_term">Long Term</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -172,12 +214,24 @@ export default function PredictionsPage() {
             <Card key={prediction.id} className="bg-gray-800 border-gray-700">
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-base md:text-lg text-white pr-4">
-                    {prediction.question}
-                  </CardTitle>
-                  <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded whitespace-nowrap">
-                    {prediction.category}
-                  </span>
+                  <div className="flex-1">
+                    <CardTitle className="text-base md:text-lg text-white pr-4 mb-2">
+                      {prediction.question}
+                    </CardTitle>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded">
+                        {prediction.category}
+                      </span>
+                      {getPredictionTypeBadge(prediction.predictionType)}
+                    </div>
+                  </div>
+                  {prediction.imageUrl && (
+                    <img 
+                      src={prediction.imageUrl} 
+                      alt="Prediction" 
+                      className="w-20 h-20 object-cover rounded ml-4 flex-shrink-0"
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0 text-sm text-gray-400">
                   <div className="flex items-center space-x-1">
@@ -231,11 +285,14 @@ export default function PredictionsPage() {
                         className="bg-gray-600 border-gray-500"
                         placeholder="Enter PT amount"
                       />
+                      <div className="text-xs text-gray-400">
+                        You can bet any amount above the minimum. Higher bets = higher rewards!
+                      </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                       <Button
-                        onClick={() => handleVote(prediction.id)}
+                        onClick={() => handleVote(prediction.id, prediction.requiredPt)}
                         disabled={voteMutation.isPending}
                         className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                       >

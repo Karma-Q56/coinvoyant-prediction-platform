@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { Users, Target, Gift, TrendingUp, Plus, CheckCircle, Shield } from 'lucide-react';
+import { Users, Target, Gift, TrendingUp, Plus, CheckCircle, Shield, Image } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function AdminDashboard() {
@@ -25,8 +25,10 @@ export default function AdminDashboard() {
     question: '',
     category: '',
     options: ['', ''],
-    requiredPt: 10,
+    requiredPt: 1,
     closesAt: '',
+    imageUrl: '',
+    predictionType: 'long_term' as 'daily' | 'long_term',
   });
 
   // Sweepstakes form state
@@ -36,6 +38,8 @@ export default function AdminDashboard() {
     prize: '',
     entryCost: 0,
     drawDate: '',
+    imageUrl: '',
+    entryCurrency: 'ET' as 'ET' | 'PT',
   });
 
   // Check admin status
@@ -88,8 +92,10 @@ export default function AdminDashboard() {
         question: '',
         category: '',
         options: ['', ''],
-        requiredPt: 10,
+        requiredPt: 1,
         closesAt: '',
+        imageUrl: '',
+        predictionType: 'long_term',
       });
       toast({
         title: "Prediction created!",
@@ -118,6 +124,8 @@ export default function AdminDashboard() {
         prize: '',
         entryCost: 0,
         drawDate: '',
+        imageUrl: '',
+        entryCurrency: 'ET',
       });
       toast({
         title: "Sweepstakes created!",
@@ -180,6 +188,8 @@ export default function AdminDashboard() {
       options: validOptions,
       requiredPt: predictionForm.requiredPt,
       closesAt: new Date(predictionForm.closesAt),
+      imageUrl: predictionForm.imageUrl || undefined,
+      predictionType: predictionForm.predictionType,
     });
   };
 
@@ -199,6 +209,8 @@ export default function AdminDashboard() {
       prize: sweepstakesForm.prize,
       entryCost: sweepstakesForm.entryCost,
       drawDate: sweepstakesForm.drawDate ? new Date(sweepstakesForm.drawDate) : undefined,
+      imageUrl: sweepstakesForm.imageUrl || undefined,
+      entryCurrency: sweepstakesForm.entryCurrency,
     });
   };
 
@@ -314,14 +326,54 @@ export default function AdminDashboard() {
                   />
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Category</Label>
+                    <Input
+                      value={predictionForm.category}
+                      onChange={(e) => setPredictionForm({ ...predictionForm, category: e.target.value })}
+                      className="bg-gray-700 border-gray-600"
+                      placeholder="e.g., Sports, Gaming, News"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Type</Label>
+                    <Select 
+                      value={predictionForm.predictionType} 
+                      onValueChange={(value: 'daily' | 'long_term') => 
+                        setPredictionForm({ ...predictionForm, predictionType: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-gray-700 border-gray-600">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="daily">Daily Prediction</SelectItem>
+                        <SelectItem value="long_term">Long Term Prediction</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Category</Label>
-                  <Input
-                    value={predictionForm.category}
-                    onChange={(e) => setPredictionForm({ ...predictionForm, category: e.target.value })}
-                    className="bg-gray-700 border-gray-600"
-                    placeholder="e.g., Sports, Gaming, News"
-                  />
+                  <Label className="text-gray-300">Image URL (Optional)</Label>
+                  <div className="flex space-x-2">
+                    <Input
+                      value={predictionForm.imageUrl}
+                      onChange={(e) => setPredictionForm({ ...predictionForm, imageUrl: e.target.value })}
+                      className="bg-gray-700 border-gray-600"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      <Image className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -359,11 +411,11 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Required PT</Label>
+                    <Label className="text-gray-300">Minimum PT</Label>
                     <Input
                       type="number"
                       value={predictionForm.requiredPt}
-                      onChange={(e) => setPredictionForm({ ...predictionForm, requiredPt: parseInt(e.target.value) || 10 })}
+                      onChange={(e) => setPredictionForm({ ...predictionForm, requiredPt: parseInt(e.target.value) || 1 })}
                       className="bg-gray-700 border-gray-600"
                       min="1"
                     />
@@ -446,9 +498,29 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Image URL (Optional)</Label>
+                  <div className="flex space-x-2">
+                    <Input
+                      value={sweepstakesForm.imageUrl}
+                      onChange={(e) => setSweepstakesForm({ ...sweepstakesForm, imageUrl: e.target.value })}
+                      className="bg-gray-700 border-gray-600"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      <Image className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Entry Cost (ET)</Label>
+                    <Label className="text-gray-300">Entry Cost</Label>
                     <Input
                       type="number"
                       value={sweepstakesForm.entryCost}
@@ -456,6 +528,24 @@ export default function AdminDashboard() {
                       className="bg-gray-700 border-gray-600"
                       min="0"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Currency</Label>
+                    <Select 
+                      value={sweepstakesForm.entryCurrency} 
+                      onValueChange={(value: 'ET' | 'PT') => 
+                        setSweepstakesForm({ ...sweepstakesForm, entryCurrency: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-gray-700 border-gray-600">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ET">ET (Entertainment Tokens)</SelectItem>
+                        <SelectItem value="PT">PT (PredictTokens)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
@@ -509,10 +599,24 @@ export default function AdminDashboard() {
             {predictions?.predictions.filter(p => p.status === 'open').map((prediction) => (
               <div key={prediction.id} className="p-4 bg-gray-700 rounded">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-white">{prediction.question}</h3>
-                  <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded">
-                    {prediction.category}
-                  </span>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-white">{prediction.question}</h3>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded">
+                        {prediction.category}
+                      </span>
+                      <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">
+                        {prediction.predictionType === 'daily' ? 'Daily' : 'Long Term'}
+                      </span>
+                    </div>
+                  </div>
+                  {prediction.imageUrl && (
+                    <img 
+                      src={prediction.imageUrl} 
+                      alt="Prediction" 
+                      className="w-16 h-16 object-cover rounded ml-4"
+                    />
+                  )}
                 </div>
                 <div className="text-sm text-gray-400 mb-3">
                   Closes: {new Date(prediction.closesAt).toLocaleString()}

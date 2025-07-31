@@ -11,6 +11,8 @@ export interface CreatePredictionRequest {
   options: string[];
   requiredPt: number;
   closesAt: Date;
+  imageUrl?: string;
+  predictionType: 'daily' | 'long_term';
 }
 
 export interface CreatePredictionResponse {
@@ -20,6 +22,8 @@ export interface CreatePredictionResponse {
   options: string[];
   requiredPt: number;
   closesAt: Date;
+  imageUrl?: string;
+  predictionType: string;
 }
 
 // List of admin email addresses
@@ -46,6 +50,11 @@ export const createPrediction = api<CreatePredictionRequest, CreatePredictionRes
       throw APIError.permissionDenied("admin access required");
     }
 
+    // Validate prediction type
+    if (!['daily', 'long_term'].includes(req.predictionType)) {
+      throw APIError.invalidArgument("prediction type must be 'daily' or 'long_term'");
+    }
+
     const prediction = await predictionDB.queryRow<{
       id: number;
       question: string;
@@ -53,10 +62,12 @@ export const createPrediction = api<CreatePredictionRequest, CreatePredictionRes
       options: string[];
       required_pt: number;
       closes_at: Date;
+      image_url: string | null;
+      prediction_type: string;
     }>`
-      INSERT INTO predictions (question, category, options, required_pt, closes_at)
-      VALUES (${req.question}, ${req.category}, ${JSON.stringify(req.options)}, ${req.requiredPt}, ${req.closesAt})
-      RETURNING id, question, category, options, required_pt, closes_at
+      INSERT INTO predictions (question, category, options, required_pt, closes_at, image_url, prediction_type)
+      VALUES (${req.question}, ${req.category}, ${JSON.stringify(req.options)}, ${req.requiredPt}, ${req.closesAt}, ${req.imageUrl || null}, ${req.predictionType})
+      RETURNING id, question, category, options, required_pt, closes_at, image_url, prediction_type
     `;
 
     return {
@@ -66,6 +77,8 @@ export const createPrediction = api<CreatePredictionRequest, CreatePredictionRes
       options: prediction!.options,
       requiredPt: prediction!.required_pt,
       closesAt: prediction!.closes_at,
+      imageUrl: prediction!.image_url || undefined,
+      predictionType: prediction!.prediction_type,
     };
   }
 );

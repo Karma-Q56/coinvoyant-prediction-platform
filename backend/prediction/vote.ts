@@ -56,6 +56,7 @@ export const vote = api<VoteRequest, VoteResponse>(
         throw APIError.invalidArgument("invalid option selected");
       }
 
+      // Check minimum PT requirement (users can bet any amount above the minimum)
       if (req.ptAmount < prediction.required_pt) {
         throw APIError.invalidArgument(`minimum ${prediction.required_pt} PT required`);
       }

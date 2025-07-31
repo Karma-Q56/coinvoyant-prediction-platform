@@ -12,6 +12,7 @@ export interface EnterSweepstakesRequest {
 export interface EnterSweepstakesResponse {
   success: boolean;
   newEtBalance?: number;
+  newPtBalance?: number;
 }
 
 // Enters a user into a sweepstakes.
@@ -26,8 +27,9 @@ export const enter = api<EnterSweepstakesRequest, EnterSweepstakesResponse>(
         id: number;
         entry_cost: number;
         is_open: boolean;
+        entry_currency: string;
       }>`
-        SELECT id, entry_cost, is_open
+        SELECT id, entry_cost, is_open, entry_currency
         FROM sweepstakes
         WHERE id = ${req.sweepstakesId}
       `;
@@ -41,44 +43,52 @@ export const enter = api<EnterSweepstakesRequest, EnterSweepstakesResponse>(
       }
 
       let newEtBalance: number | undefined;
+      let newPtBalance: number | undefined;
 
-      // Handle ET cost if required
+      // Handle entry cost if required
       if (sweepstakes.entry_cost > 0) {
         const userTx = await userDB.begin();
         try {
+          const balanceField = sweepstakes.entry_currency === 'ET' ? 'et_balance' : 'pt_balance';
+          
           const user = await userTx.queryRow<{
             et_balance: number;
+            pt_balance: number;
           }>`
-            SELECT et_balance FROM users WHERE id = ${req.userId}
+            SELECT et_balance, pt_balance FROM users WHERE id = ${req.userId}
           `;
 
           if (!user) {
             throw APIError.notFound("user not found");
           }
 
-          if (user.et_balance < sweepstakes.entry_cost) {
-            throw APIError.failedPrecondition("insufficient ET balance");
+          const currentBalance = sweepstakes.entry_currency === 'ET' ? user.et_balance : user.pt_balance;
+          
+          if (currentBalance < sweepstakes.entry_cost) {
+            throw APIError.failedPrecondition(`insufficient ${sweepstakes.entry_currency} balance`);
           }
 
-          // Deduct ET from user
+          // Deduct currency from user
           const updatedUser = await userTx.queryRow<{
             et_balance: number;
+            pt_balance: number;
           }>`
             UPDATE users
-            SET et_balance = et_balance - ${sweepstakes.entry_cost},
+            SET ${balanceField} = ${balanceField} - ${sweepstakes.entry_cost},
                 updated_at = NOW()
             WHERE id = ${req.userId}
-            RETURNING et_balance
+            RETURNING et_balance, pt_balance
           `;
 
           // Record transaction
           await userTx.exec`
             INSERT INTO transactions (user_id, type, amount, currency, description)
-            VALUES (${req.userId}, 'sweepstakes', ${-sweepstakes.entry_cost}, 'ET', 'Sweepstakes entry')
+            VALUES (${req.userId}, 'sweepstakes', ${-sweepstakes.entry_cost}, ${sweepstakes.entry_currency}, 'Sweepstakes entry')
           `;
 
           await userTx.commit();
           newEtBalance = updatedUser!.et_balance;
+          newPtBalance = updatedUser!.pt_balance;
         } catch (error) {
           await userTx.rollback();
           throw error;
@@ -96,6 +106,7 @@ export const enter = api<EnterSweepstakesRequest, EnterSweepstakesResponse>(
       return {
         success: true,
         newEtBalance,
+        newPtBalance,
       };
     } catch (error) {
       await tx.rollback();
