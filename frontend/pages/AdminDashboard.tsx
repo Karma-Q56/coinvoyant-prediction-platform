@@ -308,7 +308,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white">Create New Prediction</CardTitle>
@@ -326,7 +326,7 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-gray-300">Category</Label>
                     <Input
@@ -409,7 +409,7 @@ export default function AdminDashboard() {
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-gray-300">Minimum PT</Label>
                     <Input
@@ -518,7 +518,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-gray-300">Entry Cost</Label>
                     <Input
