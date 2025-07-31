@@ -13,8 +13,7 @@ export interface CheckAdminResponse {
 
 // List of admin email addresses
 const ADMIN_EMAILS = [
-  // Add your email address here
-  "admin@example.com", // Replace with your actual email
+  "ragnarokq56@gmail.com",
 ];
 
 // Checks if a user has admin privileges based on their email.

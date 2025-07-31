@@ -18,8 +18,7 @@ export interface ResolvePredictionResponse {
 
 // List of admin email addresses
 const ADMIN_EMAILS = [
-  // Add your email address here
-  "admin@example.com", // Replace with your actual email
+  "ragnarokq56@gmail.com",
 ];
 
 // Resolves a prediction and distributes rewards (admin only).

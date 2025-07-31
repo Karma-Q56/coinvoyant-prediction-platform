@@ -24,8 +24,7 @@ export interface CreatePredictionResponse {
 
 // List of admin email addresses
 const ADMIN_EMAILS = [
-  // Add your email address here
-  "admin@example.com", // Replace with your actual email
+  "ragnarokq56@gmail.com",
 ];
 
 // Creates a new prediction (admin only).
