@@ -19,12 +19,14 @@ export default function PredictionsPage() {
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [ptAmount, setPtAmount] = useState<string>('');
 
-  const { data: predictions, isLoading } = useQuery({
+  const { data: predictions, isLoading, error } = useQuery({
     queryKey: ['predictions', selectedCategory],
     queryFn: () => backend.prediction.listPredictions({ 
       category: selectedCategory || undefined,
       status: 'open'
     }),
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const voteMutation = useMutation({
@@ -103,6 +105,15 @@ export default function PredictionsPage() {
     return (
       <div className="text-center py-12">
         <h1 className="text-3xl font-bold mb-4">Please sign in to view predictions</h1>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <h1 className="text-3xl font-bold mb-4 text-red-400">Error loading predictions</h1>
+        <p className="text-gray-400">Please try refreshing the page</p>
       </div>
     );
   }

@@ -28,25 +28,26 @@ export interface ListPredictionsResponse {
 export const listPredictions = api<ListPredictionsRequest, ListPredictionsResponse>(
   { expose: true, method: "GET", path: "/predictions" },
   async (req) => {
-    let query = `
-      SELECT p.id, p.question, p.category, p.options, p.status, p.correct_option,
-             p.required_pt, p.created_at, p.closes_at
-      FROM predictions p
-      WHERE 1=1
-    `;
+    let whereClause = "WHERE 1=1";
     const params: any[] = [];
 
     if (req.category) {
-      query += ` AND p.category = $${params.length + 1}`;
+      whereClause += ` AND p.category = $${params.length + 1}`;
       params.push(req.category);
     }
 
     if (req.status) {
-      query += ` AND p.status = $${params.length + 1}`;
+      whereClause += ` AND p.status = $${params.length + 1}`;
       params.push(req.status);
     }
 
-    query += ` ORDER BY p.created_at DESC`;
+    const query = `
+      SELECT p.id, p.question, p.category, p.options, p.status, p.correct_option,
+             p.required_pt, p.created_at, p.closes_at
+      FROM predictions p
+      ${whereClause}
+      ORDER BY p.created_at DESC
+    `;
 
     const predictions = await predictionDB.rawQueryAll<{
       id: number;
