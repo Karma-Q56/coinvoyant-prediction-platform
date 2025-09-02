@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { Users, Target, Gift, TrendingUp, Plus, CheckCircle, Shield, Image } from 'lucide-react';
+import { Users, Target, Gift, TrendingUp, Plus, CheckCircle, Shield, Image, Database } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function AdminDashboard() {
@@ -87,6 +87,7 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-predictions'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
       setShowCreatePrediction(false);
       setPredictionForm({
         question: '',
@@ -142,11 +143,33 @@ export default function AdminDashboard() {
     },
   });
 
+  const createSamplePredictionsMutation = useMutation({
+    mutationFn: () => backend.admin.createSamplePredictions({ userId: user!.id }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      toast({
+        title: "Sample predictions created!",
+        description: data.message,
+      });
+    },
+    onError: (error: any) => {
+      console.error('Create sample predictions error:', error);
+      toast({
+        title: "Failed to create sample predictions",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    },
+  });
+
   const resolvePredictionMutation = useMutation({
     mutationFn: (data: { predictionId: number; correctOption: string }) =>
       backend.admin.resolvePrediction({ ...data, userId: user!.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
       toast({
         title: "Prediction resolved!",
         description: "The prediction has been resolved and rewards distributed.",
@@ -262,7 +285,19 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 px-4">
-      <h1 className="text-2xl md:text-3xl font-bold text-white">Admin Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+        <h1 className="text-2xl md:text-3xl font-bold text-white">Admin Dashboard</h1>
+        
+        {/* Quick Setup Button */}
+        <Button
+          onClick={() => createSamplePredictionsMutation.mutate()}
+          disabled={createSamplePredictionsMutation.isPending}
+          className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+        >
+          <Database className="h-4 w-4 mr-2" />
+          {createSamplePredictionsMutation.isPending ? 'Creating...' : 'Create Sample Predictions'}
+        </Button>
+      </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -651,8 +686,16 @@ export default function AdminDashboard() {
               </div>
             ))}
             {predictions?.predictions.filter(p => p.status === 'open').length === 0 && (
-              <div className="text-center py-8 text-gray-200 font-medium">
-                No open predictions to manage
+              <div className="text-center py-8">
+                <div className="text-gray-200 font-medium mb-4">No open predictions to manage</div>
+                <Button
+                  onClick={() => createSamplePredictionsMutation.mutate()}
+                  disabled={createSamplePredictionsMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                >
+                  <Database className="h-4 w-4 mr-2" />
+                  {createSamplePredictionsMutation.isPending ? 'Creating...' : 'Create Sample Predictions'}
+                </Button>
               </div>
             )}
           </div>

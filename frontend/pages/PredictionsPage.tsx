@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-import { Clock, Target, TrendingUp, Calendar, Zap } from 'lucide-react';
+import { Clock, Target, TrendingUp, Calendar, Zap, RefreshCw } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function PredictionsPage() {
@@ -21,7 +21,7 @@ export default function PredictionsPage() {
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [ptAmount, setPtAmount] = useState<string>('');
 
-  const { data: predictions, isLoading, error } = useQuery({
+  const { data: predictions, isLoading, error, refetch } = useQuery({
     queryKey: ['predictions', selectedCategory, selectedType],
     queryFn: async () => {
       try {
@@ -32,13 +32,15 @@ export default function PredictionsPage() {
         if (selectedType) {
           params.predictionType = selectedType;
         }
-        return await backend.prediction.listPredictions(params);
+        const result = await backend.prediction.listPredictions(params);
+        console.log('Predictions loaded:', result);
+        return result;
       } catch (error) {
         console.error('Failed to fetch predictions:', error);
         throw error;
       }
     },
-    retry: false,
+    retry: 1,
     staleTime: 30000,
   });
 
@@ -147,22 +149,6 @@ export default function PredictionsPage() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-12 px-4">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-red-400">Unable to load predictions</h1>
-        <p className="text-gray-200 mb-4 font-medium">The prediction service is currently unavailable</p>
-        <Button 
-          onClick={() => window.location.reload()} 
-          variant="outline"
-          className="border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white font-medium"
-        >
-          Try Again
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 px-4">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
@@ -195,6 +181,15 @@ export default function PredictionsPage() {
                 <SelectItem value="long_term">Long Term</SelectItem>
               </SelectContent>
             </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
         </div>
       </div>
@@ -202,6 +197,21 @@ export default function PredictionsPage() {
       {isLoading ? (
         <div className="text-center py-12">
           <div className="text-lg text-gray-200 font-medium">Loading predictions...</div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <h2 className="text-xl font-semibold text-red-400 mb-2">Failed to load predictions</h2>
+          <p className="text-gray-300 font-medium mb-4">
+            {error instanceof Error ? error.message : 'An error occurred while loading predictions'}
+          </p>
+          <Button 
+            onClick={() => refetch()} 
+            variant="outline"
+            className="border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white font-medium"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
         </div>
       ) : predictions?.predictions && predictions.predictions.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -323,7 +333,14 @@ export default function PredictionsPage() {
         <div className="text-center py-12">
           <TrendingUp className="h-16 w-16 text-gray-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-200 mb-2">No predictions available</h2>
-          <p className="text-gray-300 font-medium">New predictions will appear here soon!</p>
+          <p className="text-gray-300 font-medium mb-4">
+            There are currently no open predictions. New predictions will appear here when they're created!
+          </p>
+          <div className="space-y-2 text-gray-400 text-sm">
+            <p>• Predictions are created by administrators</p>
+            <p>• Check back later for new prediction opportunities</p>
+            <p>• You can view your past predictions in "My Predictions"</p>
+          </div>
         </div>
       )}
     </div>

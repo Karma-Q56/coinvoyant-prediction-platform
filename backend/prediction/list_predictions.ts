@@ -31,6 +31,8 @@ export interface ListPredictionsResponse {
 export const listPredictions = api<ListPredictionsRequest, ListPredictionsResponse>(
   { expose: true, method: "GET", path: "/predictions" },
   async (req) => {
+    console.log('List predictions called with params:', req);
+    
     let whereClause = "WHERE 1=1";
     const params: any[] = [];
 
@@ -57,59 +59,73 @@ export const listPredictions = api<ListPredictionsRequest, ListPredictionsRespon
       ORDER BY p.created_at DESC
     `;
 
-    const predictions = await predictionDB.rawQueryAll<{
-      id: number;
-      question: string;
-      category: string;
-      options: string[];
-      status: string;
-      correct_option: string | null;
-      required_pt: number;
-      created_at: Date;
-      closes_at: Date;
-      image_url: string | null;
-      prediction_type: string;
-    }>(query, ...params);
+    console.log('Executing query:', query, 'with params:', params);
 
-    // Get vote counts for each prediction
-    const predictionIds = predictions.map(p => p.id);
-    const voteCounts = new Map<number, Record<string, number>>();
+    try {
+      const predictions = await predictionDB.rawQueryAll<{
+        id: number;
+        question: string;
+        category: string;
+        options: string[];
+        status: string;
+        correct_option: string | null;
+        required_pt: number;
+        created_at: Date;
+        closes_at: Date;
+        image_url: string | null;
+        prediction_type: string;
+      }>(query, ...params);
 
-    if (predictionIds.length > 0) {
-      const votes = await predictionDB.queryAll<{
-        prediction_id: number;
-        option_selected: string;
-        vote_count: number;
-      }>`
-        SELECT prediction_id, option_selected, COUNT(*) as vote_count
-        FROM votes
-        WHERE prediction_id = ANY(${predictionIds})
-        GROUP BY prediction_id, option_selected
-      `;
+      console.log('Raw predictions result:', predictions);
 
-      votes.forEach(vote => {
-        if (!voteCounts.has(vote.prediction_id)) {
-          voteCounts.set(vote.prediction_id, {});
-        }
-        voteCounts.get(vote.prediction_id)![vote.option_selected] = vote.vote_count;
-      });
+      // Get vote counts for each prediction
+      const predictionIds = predictions.map(p => p.id);
+      const voteCounts = new Map<number, Record<string, number>>();
+
+      if (predictionIds.length > 0) {
+        const votes = await predictionDB.queryAll<{
+          prediction_id: number;
+          option_selected: string;
+          vote_count: number;
+        }>`
+          SELECT prediction_id, option_selected, COUNT(*) as vote_count
+          FROM votes
+          WHERE prediction_id = ANY(${predictionIds})
+          GROUP BY prediction_id, option_selected
+        `;
+
+        console.log('Vote counts result:', votes);
+
+        votes.forEach(vote => {
+          if (!voteCounts.has(vote.prediction_id)) {
+            voteCounts.set(vote.prediction_id, {});
+          }
+          voteCounts.get(vote.prediction_id)![vote.option_selected] = vote.vote_count;
+        });
+      }
+
+      const result = {
+        predictions: predictions.map(p => ({
+          id: p.id,
+          question: p.question,
+          category: p.category,
+          options: p.options,
+          status: p.status,
+          correctOption: p.correct_option || undefined,
+          requiredPt: p.required_pt,
+          createdAt: p.created_at,
+          closesAt: p.closes_at,
+          voteCounts: voteCounts.get(p.id) || {},
+          imageUrl: p.image_url || undefined,
+          predictionType: p.prediction_type,
+        })),
+      };
+
+      console.log('Final result:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in listPredictions:', error);
+      throw error;
     }
-
-    return {
-      predictions: predictions.map(p => ({
-        id: p.id,
-        question: p.question,
-        category: p.category,
-        options: p.options,
-        status: p.status,
-        correctOption: p.correct_option || undefined,
-        requiredPt: p.required_pt,
-        createdAt: p.created_at,
-        closesAt: p.closes_at,
-        voteCounts: voteCounts.get(p.id) || {},
-        imageUrl: p.image_url || undefined,
-        predictionType: p.prediction_type,
-      })),
-    };
   }
 );
