@@ -14,6 +14,8 @@ import WalletPage from './pages/WalletPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
+import DashboardPage from './pages/DashboardPage';
+import DailyBonusModal from './components/DailyBonusModal';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/predictions" element={<PredictionsPage />} />
                 <Route path="/my-predictions" element={<MyPredictionsPage />} />
                 <Route path="/sweepstakes" element={<SweepstakesPage />} />
@@ -38,6 +41,7 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
               </Routes>
             </main>
+            <DailyBonusModal />
             <Toaster />
           </div>
         </Router>

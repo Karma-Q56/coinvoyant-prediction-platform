@@ -43,7 +43,7 @@ export const register = api<RegisterRequest, User>(
     // Hash password
     const passwordHash = await bcrypt.hash(req.password, 10);
 
-    // Create user with starting balances
+    // Create user with new starting balances: 500 PT and 10 ET
     const user = await userDB.queryRow<{
       id: number;
       email: string;
@@ -54,7 +54,7 @@ export const register = api<RegisterRequest, User>(
       join_date: Date;
     }>`
       INSERT INTO users (email, username, password_hash, pt_balance, et_balance)
-      VALUES (${req.email}, ${req.username}, ${passwordHash}, 100, 50)
+      VALUES (${req.email}, ${req.username}, ${passwordHash}, 500, 10)
       RETURNING id, email, username, pt_balance, et_balance, streak, join_date
     `;
 

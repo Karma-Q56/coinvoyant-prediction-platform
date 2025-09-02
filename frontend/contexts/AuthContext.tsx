@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import backend from '~backend/client';
 import type { User } from '~backend/user/register';
 
@@ -28,6 +29,8 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Check for stored user data on app load
@@ -44,6 +47,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(response.user);
       localStorage.setItem('coinvoyant_user', JSON.stringify(response.user));
       localStorage.setItem('coinvoyant_token', response.token);
+      
+      // Navigate to dashboard after login
+      navigate('/dashboard');
     } catch (error) {
       throw error;
     }
@@ -57,6 +63,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Auto-login after registration
       const loginResponse = await backend.user.login({ email, password });
       localStorage.setItem('coinvoyant_token', loginResponse.token);
+      
+      // Navigate to dashboard after registration
+      navigate('/dashboard');
     } catch (error) {
       throw error;
     }
@@ -66,6 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
     localStorage.removeItem('coinvoyant_user');
     localStorage.removeItem('coinvoyant_token');
+    navigate('/');
   };
 
   const updateUser = (updates: Partial<User>) => {

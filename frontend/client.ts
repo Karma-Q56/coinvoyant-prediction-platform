@@ -90,6 +90,7 @@ export interface ClientOptions {
  */
 import { checkAdmin as api_admin_check_admin_checkAdmin } from "~backend/admin/check_admin";
 import { createPrediction as api_admin_create_prediction_createPrediction } from "~backend/admin/create_prediction";
+import { createSamplePredictions as api_admin_create_sample_predictions_createSamplePredictions } from "~backend/admin/create_sample_predictions";
 import { createSweepstakes as api_admin_create_sweepstakes_createSweepstakes } from "~backend/admin/create_sweepstakes";
 import { getStats as api_admin_get_stats_getStats } from "~backend/admin/get_stats";
 import { resolvePrediction as api_admin_resolve_prediction_resolvePrediction } from "~backend/admin/resolve_prediction";
@@ -103,6 +104,7 @@ export namespace admin {
             this.baseClient = baseClient
             this.checkAdmin = this.checkAdmin.bind(this)
             this.createPrediction = this.createPrediction.bind(this)
+            this.createSamplePredictions = this.createSamplePredictions.bind(this)
             this.createSweepstakes = this.createSweepstakes.bind(this)
             this.getStats = this.getStats.bind(this)
             this.resolvePrediction = this.resolvePrediction.bind(this)
@@ -124,6 +126,15 @@ export namespace admin {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/admin/predictions`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_admin_create_prediction_createPrediction>
+        }
+
+        /**
+         * Creates sample predictions for testing (admin only).
+         */
+        public async createSamplePredictions(params: RequestType<typeof api_admin_create_sample_predictions_createSamplePredictions>): Promise<ResponseType<typeof api_admin_create_sample_predictions_createSamplePredictions>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/admin/create-sample-predictions`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_admin_create_sample_predictions_createSamplePredictions>
         }
 
         /**
@@ -267,6 +278,9 @@ export namespace sweepstakes {
 /**
  * Import the endpoint handlers to derive the types for the client.
  */
+import { checkDailyBonus as api_user_check_daily_bonus_checkDailyBonus } from "~backend/user/check_daily_bonus";
+import { claimDailyBonus as api_user_claim_daily_bonus_claimDailyBonus } from "~backend/user/claim_daily_bonus";
+import { getDashboard as api_user_get_dashboard_getDashboard } from "~backend/user/get_dashboard";
 import { getLeaderboard as api_user_get_leaderboard_getLeaderboard } from "~backend/user/get_leaderboard";
 import { getProfile as api_user_get_profile_getProfile } from "~backend/user/get_profile";
 import { getTransactions as api_user_get_transactions_getTransactions } from "~backend/user/get_transactions";
@@ -281,12 +295,42 @@ export namespace user {
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
+            this.checkDailyBonus = this.checkDailyBonus.bind(this)
+            this.claimDailyBonus = this.claimDailyBonus.bind(this)
+            this.getDashboard = this.getDashboard.bind(this)
             this.getLeaderboard = this.getLeaderboard.bind(this)
             this.getProfile = this.getProfile.bind(this)
             this.getTransactions = this.getTransactions.bind(this)
             this.login = this.login.bind(this)
             this.purchaseTokens = this.purchaseTokens.bind(this)
             this.register = this.register.bind(this)
+        }
+
+        /**
+         * Checks if user can claim daily login bonus.
+         */
+        public async checkDailyBonus(params: { userId: number }): Promise<ResponseType<typeof api_user_check_daily_bonus_checkDailyBonus>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/daily-bonus`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_check_daily_bonus_checkDailyBonus>
+        }
+
+        /**
+         * Claims the daily login bonus.
+         */
+        public async claimDailyBonus(params: { userId: number }): Promise<ResponseType<typeof api_user_claim_daily_bonus_claimDailyBonus>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/claim-daily-bonus`, {method: "POST", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_claim_daily_bonus_claimDailyBonus>
+        }
+
+        /**
+         * Gets dashboard data for a user.
+         */
+        public async getDashboard(params: { userId: number }): Promise<ResponseType<typeof api_user_get_dashboard_getDashboard>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/dashboard`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_dashboard_getDashboard>
         }
 
         /**

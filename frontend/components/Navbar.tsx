@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield } from 'lucide-react';
+import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield, BarChart3 } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function Navbar() {
@@ -69,6 +69,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <NavLink to="/" icon={Home}>Home</NavLink>
+                <NavLink to="/dashboard" icon={BarChart3}>Dashboard</NavLink>
                 <NavLink to="/predictions" icon={Target}>Predictions</NavLink>
                 <NavLink to="/my-predictions" icon={Trophy}>My Predictions</NavLink>
                 <NavLink to="/sweepstakes" icon={Gift}>Sweepstakes</NavLink>
@@ -139,6 +140,7 @@ export default function Navbar() {
                       </div>
                       
                       <NavLink to="/" icon={Home} onClick={closeSheet}>Home</NavLink>
+                      <NavLink to="/dashboard" icon={BarChart3} onClick={closeSheet}>Dashboard</NavLink>
                       <NavLink to="/predictions" icon={Target} onClick={closeSheet}>Predictions</NavLink>
                       <NavLink to="/my-predictions" icon={Trophy} onClick={closeSheet}>My Predictions</NavLink>
                       <NavLink to="/sweepstakes" icon={Gift} onClick={closeSheet}>Sweepstakes</NavLink>
