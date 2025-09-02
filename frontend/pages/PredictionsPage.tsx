@@ -38,9 +38,8 @@ export default function PredictionsPage() {
         throw error;
       }
     },
-    retry: 2,
-    retryDelay: 1000,
-    refetchOnWindowFocus: false,
+    retry: false,
+    staleTime: 30000,
   });
 
   const voteMutation = useMutation({
@@ -151,14 +150,14 @@ export default function PredictionsPage() {
   if (error) {
     return (
       <div className="text-center py-12 px-4">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-red-400">Error loading predictions</h1>
-        <p className="text-gray-200 mb-4 font-medium">Please try refreshing the page</p>
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-red-400">Unable to load predictions</h1>
+        <p className="text-gray-200 mb-4 font-medium">The prediction service is currently unavailable</p>
         <Button 
           onClick={() => window.location.reload()} 
           variant="outline"
           className="border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white font-medium"
         >
-          Refresh Page
+          Try Again
         </Button>
       </div>
     );
@@ -324,7 +323,7 @@ export default function PredictionsPage() {
         <div className="text-center py-12">
           <TrendingUp className="h-16 w-16 text-gray-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-200 mb-2">No predictions available</h2>
-          <p className="text-gray-300 font-medium">Check back later for new predictions to vote on!</p>
+          <p className="text-gray-300 font-medium">New predictions will appear here soon!</p>
         </div>
       )}
     </div>

@@ -21,8 +21,8 @@ export default function HomePage() {
         return { predictions: [] };
       }
     },
-    retry: 2,
-    retryDelay: 1000,
+    retry: false,
+    staleTime: 30000,
   });
 
   const featuredPredictions = predictions?.predictions.slice(0, 3) || [];
@@ -226,10 +226,15 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Error State */}
-      {error && (
+      {/* Error or Empty State */}
+      {(error || (!isLoading && featuredPredictions.length === 0)) && (
         <div className="text-center py-12 px-4">
-          <div className="text-lg text-gray-200 font-medium">Unable to load predictions at the moment</div>
+          <div className="text-lg text-gray-200 font-medium mb-4">
+            {error ? 'Unable to load predictions at the moment' : 'No predictions available yet'}
+          </div>
+          {user && (
+            <p className="text-gray-300 font-medium">New predictions will appear here soon!</p>
+          )}
         </div>
       )}
 
