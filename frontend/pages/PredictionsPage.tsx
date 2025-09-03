@@ -163,7 +163,7 @@ export default function PredictionsPage() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -176,7 +176,7 @@ export default function PredictionsPage() {
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="daily">Daily</SelectItem>
                 <SelectItem value="long_term">Long Term</SelectItem>
               </SelectContent>
