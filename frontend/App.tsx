@@ -19,33 +19,39 @@ import DailyBonusModal from './components/DailyBonusModal';
 
 const queryClient = new QueryClient();
 
+function AppInner() {
+  return (
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Navbar />
+        <main className="container mx-auto py-4 md:py-8">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/predictions" element={<PredictionsPage />} />
+            <Route path="/my-predictions" element={<MyPredictionsPage />} />
+            <Route path="/sweepstakes" element={<SweepstakesPage />} />
+            <Route path="/wallet" element={<WalletPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Routes>
+        </main>
+        <DailyBonusModal />
+        <Toaster />
+      </div>
+    </AuthProvider>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-900 text-white">
-            <Navbar />
-            <main className="container mx-auto py-4 md:py-8">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/predictions" element={<PredictionsPage />} />
-                <Route path="/my-predictions" element={<MyPredictionsPage />} />
-                <Route path="/sweepstakes" element={<SweepstakesPage />} />
-                <Route path="/wallet" element={<WalletPage />} />
-                <Route path="/leaderboard" element={<LeaderboardPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-              </Routes>
-            </main>
-            <DailyBonusModal />
-            <Toaster />
-          </div>
-        </Router>
-      </AuthProvider>
+      <Router>
+        <AppInner />
+      </Router>
     </QueryClientProvider>
   );
 }
