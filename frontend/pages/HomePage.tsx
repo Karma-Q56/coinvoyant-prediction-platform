@@ -39,6 +39,22 @@ export default function HomePage() {
       </Badge>;
   };
 
+  // Helper function to safely parse options
+  const parseOptions = (options: any): string[] => {
+    if (Array.isArray(options)) {
+      return options;
+    }
+    if (typeof options === 'string') {
+      try {
+        const parsed = JSON.parse(options);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   return (
     <div className="space-y-12">
       {/* Hero Section */}
@@ -165,48 +181,52 @@ export default function HomePage() {
         <div className="space-y-8 px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-white">Featured Predictions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredPredictions.map((prediction) => (
-              <Card key={prediction.id} className="bg-gray-800 border-gray-700 hover:border-indigo-500 transition-colors">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-base md:text-lg text-white pr-2 mb-2 font-semibold">{prediction.question}</CardTitle>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
-                          {prediction.category}
-                        </span>
-                        {getPredictionTypeBadge(prediction.predictionType)}
-                      </div>
-                    </div>
-                    {prediction.imageUrl && (
-                      <img 
-                        src={prediction.imageUrl} 
-                        alt="Prediction" 
-                        className="w-16 h-16 object-cover rounded ml-2 flex-shrink-0"
-                      />
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-200 font-medium">
-                    Min bet: {prediction.requiredPt} PT
-                  </div>
-                  <div className="text-sm text-gray-300 font-medium">
-                    Closes: {new Date(prediction.closesAt).toLocaleDateString()}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {prediction.options.map((option) => (
-                      <div key={option} className="text-center p-2 bg-gray-700 rounded text-sm">
-                        <div className="text-white font-medium">{option}</div>
-                        <div className="text-xs text-gray-300 mt-1 font-medium">
-                          {prediction.voteCounts[option] || 0} votes
+            {featuredPredictions.map((prediction) => {
+              const options = parseOptions(prediction.options);
+              
+              return (
+                <Card key={prediction.id} className="bg-gray-800 border-gray-700 hover:border-indigo-500 transition-colors">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-base md:text-lg text-white pr-2 mb-2 font-semibold">{prediction.question}</CardTitle>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
+                            {prediction.category}
+                          </span>
+                          {getPredictionTypeBadge(prediction.predictionType)}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {prediction.imageUrl && (
+                        <img 
+                          src={prediction.imageUrl} 
+                          alt="Prediction" 
+                          className="w-16 h-16 object-cover rounded ml-2 flex-shrink-0"
+                        />
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-sm text-gray-200 font-medium">
+                      Min bet: {prediction.requiredPt} PT
+                    </div>
+                    <div className="text-sm text-gray-300 font-medium">
+                      Closes: {new Date(prediction.closesAt).toLocaleDateString()}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {options.map((option) => (
+                        <div key={option} className="text-center p-2 bg-gray-700 rounded text-sm">
+                          <div className="text-white font-medium">{option}</div>
+                          <div className="text-xs text-gray-300 mt-1 font-medium">
+                            {prediction.voteCounts[option] || 0} votes
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
           
           <div className="text-center">
