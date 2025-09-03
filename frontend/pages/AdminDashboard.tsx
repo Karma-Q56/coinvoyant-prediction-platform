@@ -257,6 +257,22 @@ export default function AdminDashboard() {
     }
   };
 
+  // Helper function to safely parse options
+  const parseOptions = (options: any): string[] => {
+    if (Array.isArray(options)) {
+      return options;
+    }
+    if (typeof options === 'string') {
+      try {
+        const parsed = JSON.parse(options);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   if (!user) {
     return (
       <div className="text-center py-12 px-4">
@@ -631,60 +647,64 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {predictions?.predictions.filter(p => p.status === 'open').map((prediction) => (
-              <div key={prediction.id} className="p-4 bg-gray-700 rounded">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-white">{prediction.question}</h3>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
-                        {prediction.category}
-                      </span>
-                      <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded font-medium">
-                        {prediction.predictionType === 'daily' ? 'Daily' : 'Long Term'}
-                      </span>
-                    </div>
-                  </div>
-                  {prediction.imageUrl && (
-                    <img 
-                      src={prediction.imageUrl} 
-                      alt="Prediction" 
-                      className="w-16 h-16 object-cover rounded ml-4"
-                    />
-                  )}
-                </div>
-                <div className="text-sm text-gray-200 mb-3 font-medium">
-                  Closes: {new Date(prediction.closesAt).toLocaleString()}
-                </div>
-                <div className="flex space-x-2 mb-3">
-                  {prediction.options.map((option) => (
-                    <div key={option} className="flex-1 text-center p-2 bg-gray-600 rounded text-sm">
-                      <div className="text-white font-medium">{option}</div>
-                      <div className="text-xs text-gray-200 mt-1 font-medium">
-                        {prediction.voteCounts[option] || 0} votes
+            {predictions?.predictions.filter(p => p.status === 'open').map((prediction) => {
+              const options = parseOptions(prediction.options);
+              
+              return (
+                <div key={prediction.id} className="p-4 bg-gray-700 rounded">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white">{prediction.question}</h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
+                          {prediction.category}
+                        </span>
+                        <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded font-medium">
+                          {prediction.predictionType === 'daily' ? 'Daily' : 'Long Term'}
+                        </span>
                       </div>
                     </div>
-                  ))}
+                    {prediction.imageUrl && (
+                      <img 
+                        src={prediction.imageUrl} 
+                        alt="Prediction" 
+                        className="w-16 h-16 object-cover rounded ml-4"
+                      />
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-200 mb-3 font-medium">
+                    Closes: {new Date(prediction.closesAt).toLocaleString()}
+                  </div>
+                  <div className="flex space-x-2 mb-3">
+                    {options.map((option) => (
+                      <div key={option} className="flex-1 text-center p-2 bg-gray-600 rounded text-sm">
+                        <div className="text-white font-medium">{option}</div>
+                        <div className="text-xs text-gray-200 mt-1 font-medium">
+                          {prediction.voteCounts[option] || 0} votes
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {options.map((option) => (
+                      <Button
+                        key={option}
+                        size="sm"
+                        onClick={() => resolvePredictionMutation.mutate({
+                          predictionId: prediction.id,
+                          correctOption: option,
+                        })}
+                        disabled={resolvePredictionMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold"
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Resolve: {option}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {prediction.options.map((option) => (
-                    <Button
-                      key={option}
-                      size="sm"
-                      onClick={() => resolvePredictionMutation.mutate({
-                        predictionId: prediction.id,
-                        correctOption: option,
-                      })}
-                      disabled={resolvePredictionMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold"
-                    >
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Resolve: {option}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
             {predictions?.predictions.filter(p => p.status === 'open').length === 0 && (
               <div className="text-center py-8">
                 <div className="text-gray-200 font-medium mb-4">No open predictions to manage</div>
