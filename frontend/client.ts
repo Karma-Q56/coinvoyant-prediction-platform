@@ -280,6 +280,7 @@ export namespace sweepstakes {
  */
 import { checkDailyBonus as api_user_check_daily_bonus_checkDailyBonus } from "~backend/user/check_daily_bonus";
 import { claimDailyBonus as api_user_claim_daily_bonus_claimDailyBonus } from "~backend/user/claim_daily_bonus";
+import { getAchievements as api_user_get_achievements_getAchievements } from "~backend/user/get_achievements";
 import { getDashboard as api_user_get_dashboard_getDashboard } from "~backend/user/get_dashboard";
 import { getLeaderboard as api_user_get_leaderboard_getLeaderboard } from "~backend/user/get_leaderboard";
 import { getProfile as api_user_get_profile_getProfile } from "~backend/user/get_profile";
@@ -297,6 +298,7 @@ export namespace user {
             this.baseClient = baseClient
             this.checkDailyBonus = this.checkDailyBonus.bind(this)
             this.claimDailyBonus = this.claimDailyBonus.bind(this)
+            this.getAchievements = this.getAchievements.bind(this)
             this.getDashboard = this.getDashboard.bind(this)
             this.getLeaderboard = this.getLeaderboard.bind(this)
             this.getProfile = this.getProfile.bind(this)
@@ -322,6 +324,15 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/claim-daily-bonus`, {method: "POST", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_claim_daily_bonus_claimDailyBonus>
+        }
+
+        /**
+         * Gets all achievements for a user with their progress.
+         */
+        public async getAchievements(params: { userId: number }): Promise<ResponseType<typeof api_user_get_achievements_getAchievements>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/achievements`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_achievements_getAchievements>
         }
 
         /**
