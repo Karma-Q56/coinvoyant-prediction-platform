@@ -113,6 +113,22 @@ export default function PredictionsPage() {
     });
   };
 
+  // Helper function to safely parse options
+  const parseOptions = (options: any): string[] => {
+    if (Array.isArray(options)) {
+      return options;
+    }
+    if (typeof options === 'string') {
+      try {
+        const parsed = JSON.parse(options);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   const categories = [...new Set(predictions?.predictions.map(p => p.category) || [])];
 
   const getTimeRemaining = (closesAt: string) => {
@@ -215,119 +231,123 @@ export default function PredictionsPage() {
         </div>
       ) : predictions?.predictions && predictions.predictions.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {predictions.predictions.map((prediction) => (
-            <Card key={prediction.id} className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-base md:text-lg text-white pr-4 mb-2 font-semibold">
-                      {prediction.question}
-                    </CardTitle>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
-                        {prediction.category}
-                      </span>
-                      {getPredictionTypeBadge(prediction.predictionType)}
-                    </div>
-                  </div>
-                  {prediction.imageUrl && (
-                    <img 
-                      src={prediction.imageUrl} 
-                      alt="Prediction" 
-                      className="w-20 h-20 object-cover rounded ml-4 flex-shrink-0"
-                    />
-                  )}
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0 text-sm text-gray-200">
-                  <div className="flex items-center space-x-1">
-                    <Target className="h-4 w-4" />
-                    <span className="font-medium">Min: {prediction.requiredPt} PT</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4" />
-                    <span className="font-medium">{getTimeRemaining(prediction.closesAt)}</span>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {prediction.options.map((option) => (
-                    <div key={option} className="p-3 bg-gray-700 rounded text-center">
-                      <div className="font-semibold text-white text-sm">{option}</div>
-                      <div className="text-xs text-gray-200 mt-1 font-medium">
-                        {prediction.voteCounts[option] || 0} votes
+          {predictions.predictions.map((prediction) => {
+            const options = parseOptions(prediction.options);
+
+            return (
+              <Card key={prediction.id} className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="text-base md:text-lg text-white pr-4 mb-2 font-semibold">
+                        {prediction.question}
+                      </CardTitle>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded font-medium">
+                          {prediction.category}
+                        </span>
+                        {getPredictionTypeBadge(prediction.predictionType)}
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                {votingPrediction === prediction.id ? (
-                  <div className="space-y-4 p-4 bg-gray-700 rounded">
-                    <div className="space-y-2">
-                      <Label className="text-gray-200 font-medium">Select Option</Label>
-                      <Select value={selectedOption} onValueChange={setSelectedOption}>
-                        <SelectTrigger className="bg-gray-600 border-gray-500 text-gray-200">
-                          <SelectValue placeholder="Choose your prediction" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {prediction.options.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-gray-200 font-medium">PT Amount (Min: {prediction.requiredPt})</Label>
-                      <Input
-                        type="number"
-                        value={ptAmount}
-                        onChange={(e) => setPtAmount(e.target.value)}
-                        min={prediction.requiredPt}
-                        max={user.ptBalance}
-                        className="bg-gray-600 border-gray-500 text-white"
-                        placeholder="Enter PT amount"
+                    {prediction.imageUrl && (
+                      <img 
+                        src={prediction.imageUrl} 
+                        alt="Prediction" 
+                        className="w-20 h-20 object-cover rounded ml-4 flex-shrink-0"
                       />
-                      <div className="text-xs text-gray-200 font-medium">
-                        You can bet any amount above the minimum. Higher bets = higher rewards!
-                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0 text-sm text-gray-200">
+                    <div className="flex items-center space-x-1">
+                      <Target className="h-4 w-4" />
+                      <span className="font-medium">Min: {prediction.requiredPt} PT</span>
                     </div>
-
-                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                      <Button
-                        onClick={() => handleVote(prediction.id, prediction.requiredPt)}
-                        disabled={voteMutation.isPending}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold"
-                      >
-                        {voteMutation.isPending ? 'Submitting...' : 'Submit Vote'}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setVotingPrediction(null);
-                          setSelectedOption('');
-                          setPtAmount('');
-                        }}
-                        className="flex-1 border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white font-medium"
-                      >
-                        Cancel
-                      </Button>
+                    <div className="flex items-center space-x-1">
+                      <Clock className="h-4 w-4" />
+                      <span className="font-medium">{getTimeRemaining(prediction.closesAt)}</span>
                     </div>
                   </div>
-                ) : (
-                  <Button
-                    onClick={() => setVotingPrediction(prediction.id)}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
-                    disabled={new Date() > new Date(prediction.closesAt)}
-                  >
-                    {new Date() > new Date(prediction.closesAt) ? 'Closed' : 'Make Prediction'}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {options.map((option) => (
+                      <div key={option} className="p-3 bg-gray-700 rounded text-center">
+                        <div className="font-semibold text-white text-sm">{option}</div>
+                        <div className="text-xs text-gray-200 mt-1 font-medium">
+                          {prediction.voteCounts[option] || 0} votes
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {votingPrediction === prediction.id ? (
+                    <div className="space-y-4 p-4 bg-gray-700 rounded">
+                      <div className="space-y-2">
+                        <Label className="text-gray-200 font-medium">Select Option</Label>
+                        <Select value={selectedOption} onValueChange={setSelectedOption}>
+                          <SelectTrigger className="bg-gray-600 border-gray-500 text-gray-200">
+                            <SelectValue placeholder="Choose your prediction" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {options.map((option) => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-gray-200 font-medium">PT Amount (Min: {prediction.requiredPt})</Label>
+                        <Input
+                          type="number"
+                          value={ptAmount}
+                          onChange={(e) => setPtAmount(e.target.value)}
+                          min={prediction.requiredPt}
+                          max={user.ptBalance}
+                          className="bg-gray-600 border-gray-500 text-white"
+                          placeholder="Enter PT amount"
+                        />
+                        <div className="text-xs text-gray-200 font-medium">
+                          You can bet any amount above the minimum. Higher bets = higher rewards!
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <Button
+                          onClick={() => handleVote(prediction.id, prediction.requiredPt)}
+                          disabled={voteMutation.isPending}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                        >
+                          {voteMutation.isPending ? 'Submitting...' : 'Submit Vote'}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setVotingPrediction(null);
+                            setSelectedOption('');
+                            setPtAmount('');
+                          }}
+                          className="flex-1 border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white font-medium"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => setVotingPrediction(prediction.id)}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+                      disabled={new Date() > new Date(prediction.closesAt)}
+                    >
+                      {new Date() > new Date(prediction.closesAt) ? 'Closed' : 'Make Prediction'}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-12">
