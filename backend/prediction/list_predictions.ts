@@ -21,6 +21,7 @@ export interface Prediction {
   voteCounts: Record<string, number>;
   imageUrl?: string;
   predictionType: string;
+  odds: Record<string, number>;
 }
 
 export interface ListPredictionsResponse {
@@ -53,7 +54,7 @@ export const listPredictions = api<ListPredictionsRequest, ListPredictionsRespon
 
     const query = `
       SELECT p.id, p.question, p.category, p.options, p.status, p.correct_option,
-             p.required_pt, p.created_at, p.closes_at, p.image_url, p.prediction_type
+             p.required_pt, p.created_at, p.closes_at, p.image_url, p.prediction_type, p.odds
       FROM predictions p
       ${whereClause}
       ORDER BY p.created_at DESC
@@ -74,6 +75,7 @@ export const listPredictions = api<ListPredictionsRequest, ListPredictionsRespon
         closes_at: Date;
         image_url: string | null;
         prediction_type: string;
+        odds: Record<string, number> | null;
       }>(query, ...params);
 
       console.log('Raw predictions result:', predictions);
@@ -118,6 +120,7 @@ export const listPredictions = api<ListPredictionsRequest, ListPredictionsRespon
           voteCounts: voteCounts.get(p.id) || {},
           imageUrl: p.image_url || undefined,
           predictionType: p.prediction_type,
+          odds: p.odds || {},
         })),
       };
 

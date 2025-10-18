@@ -29,6 +29,7 @@ export default function AdminDashboard() {
     closesAt: '',
     imageUrl: '',
     predictionType: 'long_term' as 'daily' | 'long_term',
+    odds: {} as Record<string, number>,
   });
 
   // Sweepstakes form state
@@ -97,6 +98,7 @@ export default function AdminDashboard() {
         closesAt: '',
         imageUrl: '',
         predictionType: 'long_term',
+        odds: {},
       });
       toast({
         title: "Prediction created!",
@@ -205,6 +207,17 @@ export default function AdminDashboard() {
       return;
     }
 
+    for (const option of validOptions) {
+      if (!predictionForm.odds[option] || predictionForm.odds[option] <= 0) {
+        toast({
+          title: "Missing odds",
+          description: "Please set odds for all options (must be > 0)",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     createPredictionMutation.mutate({
       question: predictionForm.question,
       category: predictionForm.category,
@@ -213,6 +226,7 @@ export default function AdminDashboard() {
       closesAt: new Date(predictionForm.closesAt),
       imageUrl: predictionForm.imageUrl || undefined,
       predictionType: predictionForm.predictionType,
+      odds: predictionForm.odds,
     });
   };
 
@@ -239,8 +253,25 @@ export default function AdminDashboard() {
 
   const updatePredictionOption = (index: number, value: string) => {
     const newOptions = [...predictionForm.options];
+    const oldValue = newOptions[index];
     newOptions[index] = value;
-    setPredictionForm({ ...predictionForm, options: newOptions });
+    
+    const newOdds = { ...predictionForm.odds };
+    if (oldValue && newOdds[oldValue]) {
+      delete newOdds[oldValue];
+    }
+    if (value && !newOdds[value]) {
+      newOdds[value] = 2.0;
+    }
+    
+    setPredictionForm({ ...predictionForm, options: newOptions, odds: newOdds });
+  };
+
+  const updateOptionOdds = (option: string, odds: number) => {
+    setPredictionForm({
+      ...predictionForm,
+      odds: { ...predictionForm.odds, [option]: odds },
+    });
   };
 
   const addPredictionOption = () => {
@@ -428,24 +459,41 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-200 font-medium">Options</Label>
+                  <Label className="text-gray-200 font-medium">Options & Odds</Label>
                   {predictionForm.options.map((option, index) => (
-                    <div key={index} className="flex space-x-2">
-                      <Input
-                        value={option}
-                        onChange={(e) => updatePredictionOption(index, e.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white"
-                        placeholder={`Option ${index + 1}`}
-                      />
-                      {predictionForm.options.length > 2 && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removePredictionOption(index)}
-                          className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
-                        >
-                          Remove
-                        </Button>
+                    <div key={index} className="space-y-2">
+                      <div className="flex space-x-2">
+                        <Input
+                          value={option}
+                          onChange={(e) => updatePredictionOption(index, e.target.value)}
+                          className="bg-gray-700 border-gray-600 text-white flex-1"
+                          placeholder={`Option ${index + 1}`}
+                        />
+                        {predictionForm.options.length > 2 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removePredictionOption(index)}
+                            className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                      {option && (
+                        <div className="flex items-center space-x-2 ml-2">
+                          <Label className="text-xs text-gray-400">Odds:</Label>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            min="1.0"
+                            value={predictionForm.odds[option] || 2.0}
+                            onChange={(e) => updateOptionOdds(option, parseFloat(e.target.value) || 2.0)}
+                            className="bg-gray-700 border-gray-600 text-white w-24"
+                            placeholder="2.0"
+                          />
+                          <span className="text-xs text-purple-400">x multiplier</span>
+                        </div>
                       )}
                     </div>
                   ))}

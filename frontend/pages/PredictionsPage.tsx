@@ -270,14 +270,20 @@ export default function PredictionsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {options.map((option) => (
-                      <div key={option} className="p-3 bg-gray-700 rounded text-center">
-                        <div className="font-semibold text-white text-sm">{option}</div>
-                        <div className="text-xs text-gray-200 mt-1 font-medium">
-                          {prediction.voteCounts[option] || 0} votes
+                    {options.map((option) => {
+                      const odds = prediction.odds?.[option] || 2.0;
+                      return (
+                        <div key={option} className="p-3 bg-gray-700 rounded text-center">
+                          <div className="font-semibold text-white text-sm">{option}</div>
+                          <div className="text-xs text-purple-400 mt-1 font-bold">
+                            {odds}x multiplier
+                          </div>
+                          <div className="text-xs text-gray-200 mt-0.5 font-medium">
+                            {prediction.voteCounts[option] || 0} votes
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {votingPrediction === prediction.id ? (
@@ -289,11 +295,14 @@ export default function PredictionsPage() {
                             <SelectValue placeholder="Choose your prediction" />
                           </SelectTrigger>
                           <SelectContent>
-                            {options.map((option) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
+                            {options.map((option) => {
+                              const odds = prediction.odds?.[option] || 2.0;
+                              return (
+                                <SelectItem key={option} value={option}>
+                                  {option} ({odds}x)
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
@@ -309,6 +318,11 @@ export default function PredictionsPage() {
                           className="bg-gray-600 border-gray-500 text-white"
                           placeholder="Enter PT amount"
                         />
+                        {selectedOption && ptAmount && (
+                          <div className="text-sm text-green-400 font-bold">
+                            Potential winnings: {Math.floor(parseInt(ptAmount) * (prediction.odds?.[selectedOption] || 2.0))} PT
+                          </div>
+                        )}
                         <div className="text-xs text-gray-200 font-medium">
                           You can bet any amount above the minimum. Higher bets = higher rewards!
                         </div>
