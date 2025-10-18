@@ -46,7 +46,7 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
       const prediction = await tx.queryRow<{
         id: number;
         options: string[];
-        odds: Record<string, number>;
+        odds: Record<string, number> | null;
       }>`
         UPDATE predictions
         SET status = 'resolved',
@@ -75,11 +75,21 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
         AND option_selected = ${req.correctOption}
       `;
 
+      // Get all losing voters
+      const losingVoters = await tx.queryAll<{
+        user_id: number;
+      }>`
+        SELECT DISTINCT user_id
+        FROM votes
+        WHERE prediction_id = ${req.predictionId}
+        AND option_selected != ${req.correctOption}
+      `;
+
       let totalPtDistributed = 0;
       const userTx = await userDB.begin();
 
       try {
-        const oddsMultiplier = prediction.odds[req.correctOption] || 2;
+        const oddsMultiplier = prediction.odds?.[req.correctOption] || 2;
         
         for (const vote of winningVotes) {
           const reward = Math.floor(vote.pt_spent * oddsMultiplier);
@@ -93,24 +103,22 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
             WHERE id = ${vote.user_id}
           `;
 
+          const description = `Prediction win reward (${oddsMultiplier}x)`;
           await userTx.exec`
             INSERT INTO transactions (user_id, type, amount, currency, description)
-            VALUES (${vote.user_id}, 'win', ${reward}, 'PT', 'Prediction win reward (${oddsMultiplier}x)')
+            VALUES (${vote.user_id}, 'win', ${reward}, 'PT', ${description})
           `;
         }
 
         // Reset streak for losing voters
-        await userTx.exec`
-          UPDATE users
-          SET streak = 0,
-              updated_at = NOW()
-          WHERE id IN (
-            SELECT DISTINCT user_id
-            FROM votes
-            WHERE prediction_id = ${req.predictionId}
-            AND option_selected != ${req.correctOption}
-          )
-        `;
+        for (const loser of losingVoters) {
+          await userTx.exec`
+            UPDATE users
+            SET streak = 0,
+                updated_at = NOW()
+            WHERE id = ${loser.user_id}
+          `;
+        }
 
         await userTx.commit();
         await tx.commit();
