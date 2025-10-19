@@ -6,14 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Wallet, CreditCard, TrendingUp, TrendingDown, Plus } from 'lucide-react';
+import { Wallet, CreditCard, TrendingUp, TrendingDown, Plus, Tv } from 'lucide-react';
 import backend from '~backend/client';
+import WatchAdModal from '../components/WatchAdModal';
 
 export default function WalletPage() {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
   const [purchaseAmount, setPurchaseAmount] = useState<string>('');
   const [showPurchase, setShowPurchase] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
 
   const { data: transactions, isLoading } = useQuery({
     queryKey: ['transactions', user?.id],
@@ -145,6 +147,24 @@ export default function WalletPage() {
         </Card>
       </div>
 
+      <Card className="bg-gradient-to-r from-blue-600 to-purple-600 border-0">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-1">Watch Ads for Free Tokens</h3>
+              <p className="text-blue-100 text-sm font-medium">Earn +5 PT per ad (3 ads/day)</p>
+            </div>
+            <Button
+              onClick={() => setShowAdModal(true)}
+              className="bg-white text-blue-600 hover:bg-blue-50 font-semibold"
+            >
+              <Tv className="h-4 w-4 mr-2" />
+              Watch Ad
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Purchase Section */}
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
@@ -261,6 +281,12 @@ export default function WalletPage() {
           )}
         </CardContent>
       </Card>
+
+      <WatchAdModal
+        open={showAdModal}
+        onOpenChange={setShowAdModal}
+        adsWatchedToday={0}
+      />
     </div>
   );
 }

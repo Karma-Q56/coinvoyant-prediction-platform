@@ -12,9 +12,14 @@ import MyPredictionsPage from './pages/MyPredictionsPage';
 import SweepstakesPage from './pages/SweepstakesPage';
 import WalletPage from './pages/WalletPage';
 import LeaderboardPage from './pages/LeaderboardPage';
+import NewLeaderboardPage from './pages/NewLeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
+import EnhancedProfilePage from './pages/EnhancedProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import DashboardPage from './pages/DashboardPage';
+import ChallengesPage from './pages/ChallengesPage';
+import AchievementsPage from './pages/AchievementsPage';
+import PremiumPage from './pages/PremiumPage';
 import DailyBonusModal from './components/DailyBonusModal';
 
 const queryClient = new QueryClient();
@@ -34,8 +39,13 @@ function AppInner() {
             <Route path="/my-predictions" element={<MyPredictionsPage />} />
             <Route path="/sweepstakes" element={<SweepstakesPage />} />
             <Route path="/wallet" element={<WalletPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/leaderboard" element={<NewLeaderboardPage />} />
+            <Route path="/leaderboard-old" element={<LeaderboardPage />} />
+            <Route path="/challenges" element={<ChallengesPage />} />
+            <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="/premium" element={<PremiumPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/:userId" element={<EnhancedProfilePage />} />
             <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>

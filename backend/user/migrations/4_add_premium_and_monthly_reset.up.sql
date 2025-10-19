@@ -1,0 +1,14 @@
+ALTER TABLE users ADD COLUMN is_premium BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN last_monthly_reset TIMESTAMP;
+ALTER TABLE users ADD COLUMN monthly_reset_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN challenge_id VARCHAR(50) UNIQUE;
+ALTER TABLE users ADD COLUMN total_wins INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN total_losses INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN accuracy_percentage DECIMAL(5,2) NOT NULL DEFAULT 0.00;
+ALTER TABLE users ADD COLUMN head2head_wins INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN head2head_losses INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN ads_watched_today INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN last_ad_watch_date DATE;
+
+CREATE INDEX idx_users_challenge_id ON users(challenge_id);
+CREATE INDEX idx_users_is_premium ON users(is_premium);
