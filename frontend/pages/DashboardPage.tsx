@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Trophy, TrendingUp, TrendingDown, Calendar, Zap, Users, Clock, Gift, Wallet, Star } from 'lucide-react';
+import { Target, Trophy, TrendingUp, TrendingDown, Calendar, Zap, Users, Clock, Wallet, Star } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function DashboardPage() {
@@ -40,7 +40,6 @@ export default function DashboardPage() {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'purchase':
-      case 'bonus':
       case 'win':
         return <TrendingUp className="h-4 w-4 text-green-400" />;
       case 'vote':
@@ -54,7 +53,6 @@ export default function DashboardPage() {
   const getActivityColor = (type: string) => {
     switch (type) {
       case 'purchase':
-      case 'bonus':
       case 'win':
         return 'text-green-400';
       case 'vote':
@@ -72,12 +70,6 @@ export default function DashboardPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-white">Welcome back, {user.username}!</h1>
           <p className="text-gray-300 font-medium">Here's what's happening with your predictions</p>
         </div>
-        {dashboard?.canClaimDailyBonus && (
-          <Badge className="bg-yellow-600 text-white animate-pulse font-medium">
-            <Gift className="h-3 w-3 mr-1" />
-            Daily bonus available!
-          </Badge>
-        )}
       </div>
 
       {isLoading ? (
@@ -231,7 +223,7 @@ export default function DashboardPage() {
                   </Link>
                   <Link to="/sweepstakes">
                     <Button variant="outline" className="w-full justify-start border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white font-medium">
-                      <Gift className="h-4 w-4 mr-2" />
+                      <Trophy className="h-4 w-4 mr-2" />
                       Enter Sweepstakes
                     </Button>
                   </Link>
@@ -245,7 +237,7 @@ export default function DashboardPage() {
               </Card>
 
               {/* Performance Summary */}
-              {dashboard?.userStats.totalPredictions > 0 && (
+              {dashboard?.userStats?.totalPredictions && dashboard.userStats.totalPredictions > 0 && (
                 <Card className="bg-gray-800 border-gray-700">
                   <CardHeader>
                     <CardTitle className="text-white">Performance</CardTitle>
@@ -253,15 +245,15 @@ export default function DashboardPage() {
                   <CardContent className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-300 font-medium">Predictions Made</span>
-                      <span className="text-white font-semibold">{dashboard.userStats.totalPredictions}</span>
+                      <span className="text-white font-semibold">{dashboard?.userStats?.totalPredictions}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-300 font-medium">Correct Predictions</span>
-                      <span className="text-green-400 font-semibold">{dashboard.userStats.totalWins}</span>
+                      <span className="text-green-400 font-semibold">{dashboard?.userStats?.totalWins}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-300 font-medium">Win Rate</span>
-                      <span className="text-yellow-400 font-semibold">{dashboard.userStats.winRate}%</span>
+                      <span className="text-yellow-400 font-semibold">{dashboard?.userStats?.winRate}%</span>
                     </div>
                   </CardContent>
                 </Card>

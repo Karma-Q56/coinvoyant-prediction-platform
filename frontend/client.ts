@@ -328,8 +328,6 @@ export namespace sweepstakes {
  * Import the endpoint handlers to derive the types for the client.
  */
 import { checkAchievements as api_user_check_achievements_checkAchievements } from "~backend/user/check_achievements";
-import { checkDailyBonus as api_user_check_daily_bonus_checkDailyBonus } from "~backend/user/check_daily_bonus";
-import { claimDailyBonus as api_user_claim_daily_bonus_claimDailyBonus } from "~backend/user/claim_daily_bonus";
 import { generateChallengeId as api_user_generate_challenge_id_generateChallengeId } from "~backend/user/generate_challenge_id";
 import { getAchievements as api_user_get_achievements_getAchievements } from "~backend/user/get_achievements";
 import { getDashboard as api_user_get_dashboard_getDashboard } from "~backend/user/get_dashboard";
@@ -354,8 +352,6 @@ export namespace user {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.checkAchievements = this.checkAchievements.bind(this)
-            this.checkDailyBonus = this.checkDailyBonus.bind(this)
-            this.claimDailyBonus = this.claimDailyBonus.bind(this)
             this.generateChallengeId = this.generateChallengeId.bind(this)
             this.getAchievements = this.getAchievements.bind(this)
             this.getDashboard = this.getDashboard.bind(this)
@@ -377,24 +373,6 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/check-achievements`, {method: "POST", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_check_achievements_checkAchievements>
-        }
-
-        /**
-         * Checks if user can claim daily login bonus.
-         */
-        public async checkDailyBonus(params: { userId: number }): Promise<ResponseType<typeof api_user_check_daily_bonus_checkDailyBonus>> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/daily-bonus`, {method: "GET", body: undefined})
-            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_check_daily_bonus_checkDailyBonus>
-        }
-
-        /**
-         * Claims the daily login bonus.
-         */
-        public async claimDailyBonus(params: { userId: number }): Promise<ResponseType<typeof api_user_claim_daily_bonus_claimDailyBonus>> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/claim-daily-bonus`, {method: "POST", body: undefined})
-            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_claim_daily_bonus_claimDailyBonus>
         }
 
         public async generateChallengeId(): Promise<ResponseType<typeof api_user_generate_challenge_id_generateChallengeId>> {

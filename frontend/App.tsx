@@ -20,7 +20,7 @@ import DashboardPage from './pages/DashboardPage';
 import ChallengesPage from './pages/ChallengesPage';
 import AchievementsPage from './pages/AchievementsPage';
 import PremiumPage from './pages/PremiumPage';
-import DailyBonusModal from './components/DailyBonusModal';
+
 
 const queryClient = new QueryClient();
 
@@ -49,7 +49,6 @@ function AppInner() {
             <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>
-        <DailyBonusModal />
         <Toaster />
       </div>
     </AuthProvider>
