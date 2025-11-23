@@ -20,6 +20,7 @@ import DashboardPage from './pages/DashboardPage';
 import ChallengesPage from './pages/ChallengesPage';
 import AchievementsPage from './pages/AchievementsPage';
 import PremiumPage from './pages/PremiumPage';
+import HistoricalLeaderboardPage from './pages/HistoricalLeaderboardPage';
 
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ function AppInner() {
             <Route path="/wallet" element={<WalletPage />} />
             <Route path="/leaderboard" element={<NewLeaderboardPage />} />
             <Route path="/leaderboard-old" element={<LeaderboardPage />} />
+            <Route path="/leaderboard/history" element={<HistoricalLeaderboardPage />} />
             <Route path="/challenges" element={<ChallengesPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/premium" element={<PremiumPage />} />

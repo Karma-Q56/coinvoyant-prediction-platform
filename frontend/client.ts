@@ -332,15 +332,18 @@ import { generateChallengeId as api_user_generate_challenge_id_generateChallenge
 import { getAchievements as api_user_get_achievements_getAchievements } from "~backend/user/get_achievements";
 import { getDashboard as api_user_get_dashboard_getDashboard } from "~backend/user/get_dashboard";
 import { getEnhancedProfile as api_user_get_enhanced_profile_getEnhancedProfile } from "~backend/user/get_enhanced_profile";
+import { getHistoricalLeaderboard as api_user_get_historical_leaderboard_getHistoricalLeaderboard } from "~backend/user/get_historical_leaderboard";
 import { getLeaderboard as api_user_get_leaderboard_getLeaderboard } from "~backend/user/get_leaderboard";
 import { getLeaderboards as api_user_get_leaderboards_getLeaderboards } from "~backend/user/get_leaderboards";
 import { getProfile as api_user_get_profile_getProfile } from "~backend/user/get_profile";
 import { getTransactions as api_user_get_transactions_getTransactions } from "~backend/user/get_transactions";
 import { listAchievements as api_user_list_achievements_listAchievements } from "~backend/user/list_achievements";
+import { listSnapshotMonths as api_user_list_snapshot_months_listSnapshotMonths } from "~backend/user/list_snapshot_months";
 import { login as api_user_login_login } from "~backend/user/login";
 import { monthlyReset as api_user_monthly_reset_monthlyReset } from "~backend/user/monthly_reset";
 import { purchaseTokens as api_user_purchase_tokens_purchaseTokens } from "~backend/user/purchase_tokens";
 import { register as api_user_register_register } from "~backend/user/register";
+import { saveLeaderboardSnapshot as api_user_save_leaderboard_snapshot_saveLeaderboardSnapshot } from "~backend/user/save_leaderboard_snapshot";
 import { upgradePremium as api_user_upgrade_premium_upgradePremium } from "~backend/user/upgrade_premium";
 import { watchAd as api_user_watch_ad_watchAd } from "~backend/user/watch_ad";
 
@@ -356,15 +359,18 @@ export namespace user {
             this.getAchievements = this.getAchievements.bind(this)
             this.getDashboard = this.getDashboard.bind(this)
             this.getEnhancedProfile = this.getEnhancedProfile.bind(this)
+            this.getHistoricalLeaderboard = this.getHistoricalLeaderboard.bind(this)
             this.getLeaderboard = this.getLeaderboard.bind(this)
             this.getLeaderboards = this.getLeaderboards.bind(this)
             this.getProfile = this.getProfile.bind(this)
             this.getTransactions = this.getTransactions.bind(this)
             this.listAchievements = this.listAchievements.bind(this)
+            this.listSnapshotMonths = this.listSnapshotMonths.bind(this)
             this.login = this.login.bind(this)
             this.monthlyReset = this.monthlyReset.bind(this)
             this.purchaseTokens = this.purchaseTokens.bind(this)
             this.register = this.register.bind(this)
+            this.saveLeaderboardSnapshot = this.saveLeaderboardSnapshot.bind(this)
             this.upgradePremium = this.upgradePremium.bind(this)
             this.watchAd = this.watchAd.bind(this)
         }
@@ -403,6 +409,12 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/enhanced-profile`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_enhanced_profile_getEnhancedProfile>
+        }
+
+        public async getHistoricalLeaderboard(params: { monthYear: string, leaderboardType: string }): Promise<ResponseType<typeof api_user_get_historical_leaderboard_getHistoricalLeaderboard>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/historical-leaderboard/${encodeURIComponent(params.monthYear)}/${encodeURIComponent(params.leaderboardType)}`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_historical_leaderboard_getHistoricalLeaderboard>
         }
 
         /**
@@ -444,6 +456,12 @@ export namespace user {
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_list_achievements_listAchievements>
         }
 
+        public async listSnapshotMonths(): Promise<ResponseType<typeof api_user_list_snapshot_months_listSnapshotMonths>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/snapshot-months`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_list_snapshot_months_listSnapshotMonths>
+        }
+
         /**
          * Logs in a user with email and password.
          */
@@ -475,6 +493,12 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/register`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_register_register>
+        }
+
+        public async saveLeaderboardSnapshot(): Promise<ResponseType<typeof api_user_save_leaderboard_snapshot_saveLeaderboardSnapshot>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/save-leaderboard-snapshot`, {method: "POST", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_save_leaderboard_snapshot_saveLeaderboardSnapshot>
         }
 
         public async upgradePremium(): Promise<ResponseType<typeof api_user_upgrade_premium_upgradePremium>> {

@@ -1,13 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Medal, Award, Crown, Swords, Sparkles, Lock } from 'lucide-react';
+import { Trophy, Medal, Award, Crown, Swords, Sparkles, Lock, Clock } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function NewLeaderboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data: leaderboards, isLoading } = useQuery({
     queryKey: ['leaderboards'],
@@ -81,6 +84,14 @@ export default function NewLeaderboardPage() {
       <div className="text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Leaderboards</h1>
         <p className="text-gray-400 font-medium">Compete with the best prediction makers</p>
+        <Button 
+          onClick={() => navigate('/leaderboard/history')}
+          variant="outline"
+          className="mt-4 bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
+        >
+          <Clock className="h-4 w-4 mr-2" />
+          View Historical Rankings
+        </Button>
       </div>
 
       <Tabs defaultValue="freemium" className="w-full">
