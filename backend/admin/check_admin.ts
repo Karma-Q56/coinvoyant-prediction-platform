@@ -27,7 +27,9 @@ export const checkAdmin = api<CheckAdminRequest, CheckAdminResponse>(
     `;
 
     if (!user) {
-      throw APIError.notFound("user not found");
+      return {
+        isAdmin: false,
+      };
     }
 
     const isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
