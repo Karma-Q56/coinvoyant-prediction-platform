@@ -21,6 +21,7 @@ import ChallengesPage from './pages/ChallengesPage';
 import AchievementsPage from './pages/AchievementsPage';
 import PremiumPage from './pages/PremiumPage';
 import HistoricalLeaderboardPage from './pages/HistoricalLeaderboardPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ function AppInner() {
             <Route path="/leaderboard/history" element={<HistoricalLeaderboardPage />} />
             <Route path="/challenges" element={<ChallengesPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/premium" element={<PremiumPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/:userId" element={<EnhancedProfilePage />} />

@@ -330,6 +330,7 @@ export namespace sweepstakes {
 import { checkAchievements as api_user_check_achievements_checkAchievements } from "~backend/user/check_achievements";
 import { generateChallengeId as api_user_generate_challenge_id_generateChallengeId } from "~backend/user/generate_challenge_id";
 import { getAchievements as api_user_get_achievements_getAchievements } from "~backend/user/get_achievements";
+import { getAnalytics as api_user_get_analytics_getAnalytics } from "~backend/user/get_analytics";
 import { getDashboard as api_user_get_dashboard_getDashboard } from "~backend/user/get_dashboard";
 import { getEnhancedProfile as api_user_get_enhanced_profile_getEnhancedProfile } from "~backend/user/get_enhanced_profile";
 import { getHistoricalLeaderboard as api_user_get_historical_leaderboard_getHistoricalLeaderboard } from "~backend/user/get_historical_leaderboard";
@@ -357,6 +358,7 @@ export namespace user {
             this.checkAchievements = this.checkAchievements.bind(this)
             this.generateChallengeId = this.generateChallengeId.bind(this)
             this.getAchievements = this.getAchievements.bind(this)
+            this.getAnalytics = this.getAnalytics.bind(this)
             this.getDashboard = this.getDashboard.bind(this)
             this.getEnhancedProfile = this.getEnhancedProfile.bind(this)
             this.getHistoricalLeaderboard = this.getHistoricalLeaderboard.bind(this)
@@ -394,6 +396,12 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/achievements`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_achievements_getAchievements>
+        }
+
+        public async getAnalytics(params: { userId: number }): Promise<ResponseType<typeof api_user_get_analytics_getAnalytics>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/${encodeURIComponent(params.userId)}/analytics`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_analytics_getAnalytics>
         }
 
         /**

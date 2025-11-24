@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield, BarChart3, Swords, Star, Sparkles } from 'lucide-react';
+import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield, BarChart3, Swords, Star, Sparkles, TrendingUp } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function Navbar() {
@@ -77,6 +77,7 @@ export default function Navbar() {
                 <NavLink to="/leaderboard" icon={Trophy}>Leaderboards</NavLink>
                 <NavLink to="/challenges" icon={Swords}>Challenges</NavLink>
                 <NavLink to="/achievements" icon={Star}>Achievements</NavLink>
+                <NavLink to="/analytics" icon={TrendingUp}>Analytics</NavLink>
                 <NavLink to="/premium" icon={Sparkles}>Premium</NavLink>
                 {isAdmin && (
                   <NavLink to="/admin" icon={Shield}>Admin</NavLink>
@@ -151,6 +152,7 @@ export default function Navbar() {
                       <NavLink to="/leaderboard" icon={Trophy} onClick={closeSheet}>Leaderboards</NavLink>
                       <NavLink to="/challenges" icon={Swords} onClick={closeSheet}>Challenges</NavLink>
                       <NavLink to="/achievements" icon={Star} onClick={closeSheet}>Achievements</NavLink>
+                      <NavLink to="/analytics" icon={TrendingUp} onClick={closeSheet}>Analytics</NavLink>
                       <NavLink to="/premium" icon={Sparkles} onClick={closeSheet}>Premium</NavLink>
                       {isAdmin && (
                         <NavLink to="/admin" icon={Shield} onClick={closeSheet}>Admin</NavLink>
