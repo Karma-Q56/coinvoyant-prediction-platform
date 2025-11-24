@@ -9,13 +9,20 @@ import { Target, Trophy, TrendingUp, TrendingDown, Calendar, Zap, Users, Clock, 
 import backend from '~backend/client';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
-  const { data: dashboard, isLoading } = useQuery({
+  const { data: dashboard, isLoading, error } = useQuery({
     queryKey: ['dashboard', user?.id],
     queryFn: () => backend.user.getDashboard({ userId: user!.id }),
     enabled: !!user,
+    retry: false,
   });
+
+  React.useEffect(() => {
+    if (error && (error as any)?.code === 'not_found') {
+      logout();
+    }
+  }, [error, logout]);
 
   if (!user) {
     return (
