@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { Clock, Target, TrendingUp, Calendar, Zap, RefreshCw } from 'lucide-react';
 import backend from '~backend/client';
@@ -16,7 +17,7 @@ export default function PredictionsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedType, setSelectedType] = useState<string>('daily');
   const [votingPrediction, setVotingPrediction] = useState<number | null>(null);
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [ptAmount, setPtAmount] = useState<string>('');
@@ -157,6 +158,10 @@ export default function PredictionsPage() {
       </Badge>;
   };
 
+  const calculateProbability = (odds: number): number => {
+    return Math.round((1 / odds) * 100);
+  };
+
   if (!user) {
     return (
       <div className="text-center py-12 px-4">
@@ -167,36 +172,13 @@ export default function PredictionsPage() {
 
   return (
     <div className="space-y-6 px-4">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
-        <h1 className="text-2xl md:text-3xl font-bold text-white">Predictions</h1>
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-          <div className="text-sm">
-            <span className="text-purple-400 font-semibold">🔮 {user.ptBalance} PT</span>
-          </div>
-          <div className="flex space-x-2">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-40 bg-gray-800 border-gray-600 text-gray-200">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-full sm:w-40 bg-gray-800 border-gray-600 text-gray-200">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="long_term">Long Term</SelectItem>
-              </SelectContent>
-            </Select>
+      <div className="flex flex-col space-y-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Predictions</h1>
+          <div className="flex items-center space-x-4">
+            <div className="text-sm">
+              <span className="text-purple-400 font-semibold">🔮 {user.ptBalance} PT</span>
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -207,6 +189,41 @@ export default function PredictionsPage() {
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+          <Tabs value={selectedType} onValueChange={setSelectedType} className="w-full sm:w-auto">
+            <TabsList className="grid w-full sm:w-auto grid-cols-2 bg-gray-800 border border-gray-600">
+              <TabsTrigger 
+                value="daily" 
+                className="data-[state=active]:bg-orange-600 data-[state=active]:text-white font-medium"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Daily Predictions
+              </TabsTrigger>
+              <TabsTrigger 
+                value="long_term" 
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white font-medium"
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Long-Term Predictions
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-48 bg-gray-800 border-gray-600 text-gray-200">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -272,13 +289,19 @@ export default function PredictionsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {options.map((option) => {
                       const odds = prediction.odds?.[option] || 2.0;
+                      const probability = calculateProbability(odds);
                       return (
                         <div key={option} className="p-3 bg-gray-700 rounded text-center">
                           <div className="font-semibold text-white text-sm">{option}</div>
-                          <div className="text-xs text-purple-400 mt-1 font-bold">
-                            {odds}x multiplier
+                          <div className="flex flex-col items-center gap-1 mt-1">
+                            <div className="text-xs text-purple-400 font-bold">
+                              {odds.toFixed(2)}x multiplier
+                            </div>
+                            <div className="text-xs text-green-400 font-bold">
+                              ~{probability}% chance
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-200 mt-0.5 font-medium">
+                          <div className="text-xs text-gray-200 mt-1 font-medium">
                             {prediction.voteCounts[option] || 0} votes
                           </div>
                         </div>
@@ -297,9 +320,10 @@ export default function PredictionsPage() {
                           <SelectContent>
                             {options.map((option) => {
                               const odds = prediction.odds?.[option] || 2.0;
+                              const probability = calculateProbability(odds);
                               return (
                                 <SelectItem key={option} value={option}>
-                                  {option} ({odds}x)
+                                  {option} ({odds.toFixed(2)}x · ~{probability}%)
                                 </SelectItem>
                               );
                             })}
