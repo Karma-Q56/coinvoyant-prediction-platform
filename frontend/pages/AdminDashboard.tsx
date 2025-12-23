@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,13 +9,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { Users, Target, Gift, TrendingUp, Plus, CheckCircle, Shield, Image, Database } from 'lucide-react';
+import { Users, Target, Gift, TrendingUp, Plus, CheckCircle, Shield, Image, Database, Clock } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [showCreatePrediction, setShowCreatePrediction] = useState(false);
   const [showCreateSweepstakes, setShowCreateSweepstakes] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -335,15 +337,23 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
         <h1 className="text-2xl md:text-3xl font-bold text-white">Admin Dashboard</h1>
         
-        {/* Quick Setup Button */}
-        <Button
-          onClick={() => createSamplePredictionsMutation.mutate()}
-          disabled={createSamplePredictionsMutation.isPending}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold"
-        >
-          <Database className="h-4 w-4 mr-2" />
-          {createSamplePredictionsMutation.isPending ? 'Creating...' : 'Create Sample Predictions'}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={() => navigate('/admin/resolution-queue')}
+            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+          >
+            <Clock className="h-4 w-4 mr-2" />
+            Resolution Queue
+          </Button>
+          <Button
+            onClick={() => createSamplePredictionsMutation.mutate()}
+            disabled={createSamplePredictionsMutation.isPending}
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+          >
+            <Database className="h-4 w-4 mr-2" />
+            {createSamplePredictionsMutation.isPending ? 'Creating...' : 'Create Sample Predictions'}
+          </Button>
+        </div>
       </div>
 
       {/* Stats Overview */}

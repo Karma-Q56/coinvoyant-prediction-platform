@@ -22,6 +22,7 @@ import AchievementsPage from './pages/AchievementsPage';
 import PremiumPage from './pages/PremiumPage';
 import HistoricalLeaderboardPage from './pages/HistoricalLeaderboardPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import ResolutionQueuePage from './pages/ResolutionQueuePage';
 
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ function AppInner() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/:userId" element={<EnhancedProfilePage />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/resolution-queue" element={<ResolutionQueuePage />} />
           </Routes>
         </main>
         <Toaster />

@@ -47,13 +47,19 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
         id: number;
         options: string[];
         odds: Record<string, number> | null;
+        closed_at: Date | null;
       }>`
         UPDATE predictions
         SET status = 'resolved',
             correct_option = ${req.correctOption},
-            resolved_at = NOW()
-        WHERE id = ${req.predictionId} AND status = 'open'
-        RETURNING id, options, odds
+            resolved_at = NOW(),
+            resolution_time_seconds = CASE 
+              WHEN closed_at IS NOT NULL 
+              THEN EXTRACT(EPOCH FROM (NOW() - closed_at))::INTEGER
+              ELSE NULL
+            END
+        WHERE id = ${req.predictionId} AND (status = 'open' OR status = 'closed')
+        RETURNING id, options, odds, closed_at
       `;
 
       if (!prediction) {

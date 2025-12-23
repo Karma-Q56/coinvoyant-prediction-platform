@@ -18,7 +18,7 @@ export const closeExpired = api({}, async (): Promise<{ closed: number }> => {
   if (expiredPredictions.length > 0) {
     await predictionDB.exec`
       UPDATE predictions
-      SET status = 'closed'
+      SET status = 'closed', closed_at = NOW()
       WHERE status = 'open'
         AND closes_at <= NOW()
     `;
