@@ -21,25 +21,25 @@ export default function ChallengesPage() {
 
   const { data: challengeIdData } = useQuery({
     queryKey: ['challengeId', user?.id],
-    queryFn: () => backend.user.generateChallengeId(),
+    queryFn: () => backend.user.generateChallengeId({ userId: user!.id }),
     enabled: !!user,
   });
 
   const { data: challenges } = useQuery({
     queryKey: ['challenges', user?.id],
-    queryFn: () => backend.challenge.listChallenges(),
+    queryFn: () => backend.challenge.listChallenges({ userId: user!.id }),
     enabled: !!user,
   });
 
   const { data: pendingChallenges } = useQuery({
     queryKey: ['pendingChallenges', user?.id],
-    queryFn: () => backend.challenge.getPendingChallenges(),
+    queryFn: () => backend.challenge.getPendingChallenges({ userId: user!.id }),
     enabled: !!user,
   });
 
   const acceptChallengeMutation = useMutation({
     mutationFn: ({ challengeId, choice }: { challengeId: number; choice: boolean }) =>
-      backend.challenge.acceptChallenge({ challengeId, choice }),
+      backend.challenge.acceptChallenge({ userId: user?.id || 0, challengeId, choice }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['challenges'] });
       queryClient.invalidateQueries({ queryKey: ['pendingChallenges'] });

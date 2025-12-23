@@ -1,5 +1,4 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { userDB } from "./db";
 
 interface Achievement {
@@ -16,15 +15,18 @@ interface Achievement {
   earnedAt: Date | null;
 }
 
+interface ListAchievementsRequest {
+  userId: number;
+}
+
 interface ListAchievementsResponse {
   achievements: Achievement[];
 }
 
 export const listAchievements = api(
-  { method: "GET", path: "/user/achievements", expose: true, auth: true },
-  async (): Promise<ListAchievementsResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+  { method: "GET", path: "/user/achievements/:userId", expose: true },
+  async (req: ListAchievementsRequest): Promise<ListAchievementsResponse> => {
+    const userId = req.userId;
 
     const currentMonth = new Date().toISOString().substring(0, 7);
 

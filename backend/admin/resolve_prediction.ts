@@ -105,6 +105,12 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
             UPDATE users
             SET pt_balance = pt_balance + ${reward},
                 streak = streak + 1,
+                total_wins = total_wins + 1,
+                accuracy_percentage = CASE 
+                  WHEN (total_wins + total_losses + 1) > 0 
+                  THEN ((total_wins + 1.0) / (total_wins + total_losses + 1.0) * 100)
+                  ELSE 0
+                END,
                 updated_at = NOW()
             WHERE id = ${vote.user_id}
           `;
@@ -116,11 +122,17 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
           `;
         }
 
-        // Reset streak for losing voters
+        // Reset streak for losing voters and update loss stats
         for (const loser of losingVoters) {
           await userTx.exec`
             UPDATE users
             SET streak = 0,
+                total_losses = total_losses + 1,
+                accuracy_percentage = CASE 
+                  WHEN (total_wins + total_losses + 1) > 0 
+                  THEN (total_wins::DECIMAL / (total_wins + total_losses + 1.0) * 100)
+                  ELSE 0
+                END,
                 updated_at = NOW()
             WHERE id = ${loser.user_id}
           `;
@@ -128,6 +140,22 @@ export const resolvePrediction = api<ResolvePredictionRequest, ResolvePrediction
 
         await userTx.commit();
         await tx.commit();
+
+        const { checkAchievementsForUser } = await import("../user/check_achievements_internal");
+        for (const vote of winningVotes) {
+          try {
+            await checkAchievementsForUser(vote.user_id);
+          } catch (err) {
+            console.error(`Failed to check achievements for user ${vote.user_id}:`, err);
+          }
+        }
+
+        const { resolveChallenges } = await import("../challenge/resolve_challenges");
+        try {
+          await resolveChallenges({ predictionId: req.predictionId });
+        } catch (err) {
+          console.error(`Failed to resolve challenges for prediction ${req.predictionId}:`, err);
+        }
 
         return {
           success: true,

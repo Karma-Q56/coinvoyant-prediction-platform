@@ -13,7 +13,7 @@ export default function PremiumPage() {
   const queryClient = useQueryClient();
 
   const upgradeMutation = useMutation({
-    mutationFn: () => backend.user.upgradePremium(),
+    mutationFn: () => backend.user.upgradePremium({ userId: user?.id || 0 }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
       toast({

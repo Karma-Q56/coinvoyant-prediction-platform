@@ -15,9 +15,10 @@ interface WatchAdModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   adsWatchedToday: number;
+  userId: number;
 }
 
-export default function WatchAdModal({ open, onOpenChange, adsWatchedToday }: WatchAdModalProps) {
+export default function WatchAdModal({ open, onOpenChange, adsWatchedToday, userId }: WatchAdModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isWatching, setIsWatching] = useState(false);
@@ -27,7 +28,7 @@ export default function WatchAdModal({ open, onOpenChange, adsWatchedToday }: Wa
   const adsRemaining = maxAds - adsWatchedToday;
 
   const watchAdMutation = useMutation({
-    mutationFn: () => backend.user.watchAd(),
+    mutationFn: () => backend.user.watchAd({ userId }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

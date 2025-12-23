@@ -1,5 +1,4 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { userDB } from "./db";
 
 interface WatchAdResponse {
@@ -9,11 +8,14 @@ interface WatchAdResponse {
   newBalance: number;
 }
 
+interface WatchAdRequest {
+  userId: number;
+}
+
 export const watchAd = api(
-  { method: "POST", path: "/user/watch-ad", expose: true, auth: true },
-  async (): Promise<WatchAdResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+  { method: "POST", path: "/user/watch-ad", expose: true },
+  async (req: WatchAdRequest): Promise<WatchAdResponse> => {
+    const userId = req.userId;
 
     const user = await userDB.queryRow<{
       ads_watched_today: number;
@@ -57,6 +59,13 @@ export const watchAd = api(
       INSERT INTO transactions (user_id, amount, type, description)
       VALUES (${userId}, ${tokensPerAd}, 'ad_watch', 'Watched advertisement')
     `;
+
+    const { checkAchievementsForUser } = await import("./check_achievements_internal");
+    try {
+      await checkAchievementsForUser(userId);
+    } catch (err) {
+      console.error("Failed to check achievements:", err);
+    }
 
     return {
       tokensEarned: tokensPerAd,

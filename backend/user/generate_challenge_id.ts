@@ -1,6 +1,9 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { userDB } from "./db";
+
+interface GenerateChallengeIdRequest {
+  userId: number;
+}
 
 interface GenerateChallengeIdResponse {
   challengeId: string;
@@ -16,10 +19,9 @@ function generateRandomId(): string {
 }
 
 export const generateChallengeId = api(
-  { method: "POST", path: "/user/generate-challenge-id", expose: true, auth: true },
-  async (): Promise<GenerateChallengeIdResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+  { method: "POST", path: "/user/generate-challenge-id", expose: true },
+  async (req: GenerateChallengeIdRequest): Promise<GenerateChallengeIdResponse> => {
+    const userId = req.userId;
 
     const user = await userDB.queryRow<{ challenge_id: string | null }>`
       SELECT challenge_id FROM users WHERE id = ${userId}

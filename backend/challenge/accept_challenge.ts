@@ -1,8 +1,8 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { challengeDB } from "./db";
 
 interface AcceptChallengeRequest {
+  userId: number;
   challengeId: number;
   choice: boolean;
 }
@@ -12,10 +12,9 @@ interface AcceptChallengeResponse {
 }
 
 export const acceptChallenge = api(
-  { method: "POST", path: "/challenge/accept", expose: true, auth: true },
+  { method: "POST", path: "/challenge/accept", expose: true },
   async (req: AcceptChallengeRequest): Promise<AcceptChallengeResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+    const userId = req.userId;
 
     const challenge = await challengeDB.queryRow<{
       challenger_stake: number;
@@ -29,7 +28,7 @@ export const acceptChallenge = api(
       throw new Error("Challenge not found");
     }
 
-    if (challenge.opponent_id !== parseInt(userId)) {
+    if (challenge.opponent_id !== userId) {
       throw new Error("Not authorized to accept this challenge");
     }
 
@@ -57,6 +56,13 @@ export const acceptChallenge = api(
           accepted_at = NOW()
       WHERE id = ${req.challengeId}
     `;
+
+    const { checkAchievementsForUser } = await import("../user/check_achievements_internal");
+    try {
+      await checkAchievementsForUser(userId);
+    } catch (err) {
+      console.error("Failed to check achievements:", err);
+    }
 
     return { message: "Challenge accepted successfully" };
   }

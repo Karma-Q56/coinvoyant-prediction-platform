@@ -1,8 +1,8 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { challengeDB } from "./db";
 
 interface CreateChallengeRequest {
+  userId: number;
   predictionId: number;
   opponentChallengeId: string;
   stake: number;
@@ -15,10 +15,9 @@ interface CreateChallengeResponse {
 }
 
 export const createChallenge = api(
-  { method: "POST", path: "/challenge/create", expose: true, auth: true },
+  { method: "POST", path: "/challenge/create", expose: true },
   async (req: CreateChallengeRequest): Promise<CreateChallengeResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+    const userId = req.userId;
 
     const opponent = await challengeDB.queryRow`
       SELECT id, pt_balance FROM users WHERE challenge_id = ${req.opponentChallengeId}
@@ -45,6 +44,13 @@ export const createChallenge = api(
       VALUES (${req.predictionId}, ${userId}, ${opponent.id}, ${req.stake}, ${req.choice}, 'pending')
       RETURNING id
     `;
+
+    const { checkAchievementsForUser } = await import("../user/check_achievements_internal");
+    try {
+      await checkAchievementsForUser(userId);
+    } catch (err) {
+      console.error("Failed to check achievements:", err);
+    }
 
     return {
       id: result!.id,

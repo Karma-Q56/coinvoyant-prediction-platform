@@ -114,6 +114,13 @@ export const vote = api<VoteRequest, VoteResponse>(
         await userTx.commit();
         await tx.commit();
 
+        const { checkAchievementsForUser } = await import("../user/check_achievements_internal");
+        try {
+          await checkAchievementsForUser(req.userId);
+        } catch (err) {
+          console.error("Failed to check achievements:", err);
+        }
+
         return {
           success: true,
           newPtBalance: updatedUser!.pt_balance,

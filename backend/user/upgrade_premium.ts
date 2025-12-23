@@ -1,6 +1,9 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { userDB } from "./db";
+
+interface UpgradePremiumRequest {
+  userId: number;
+}
 
 interface UpgradePremiumResponse {
   message: string;
@@ -8,10 +11,9 @@ interface UpgradePremiumResponse {
 }
 
 export const upgradePremium = api(
-  { method: "POST", path: "/user/upgrade-premium", expose: true, auth: true },
-  async (): Promise<UpgradePremiumResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+  { method: "POST", path: "/user/upgrade-premium", expose: true },
+  async (req: UpgradePremiumRequest): Promise<UpgradePremiumResponse> => {
+    const userId = req.userId;
 
     const user = await userDB.queryRow<{
       is_premium: boolean;

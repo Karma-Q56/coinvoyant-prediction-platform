@@ -1,5 +1,4 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { challengeDB } from "./db";
 
 interface Challenge {
@@ -19,15 +18,18 @@ interface Challenge {
   resolvedAt: Date | null;
 }
 
+interface ListChallengesRequest {
+  userId: number;
+}
+
 interface ListChallengesResponse {
   challenges: Challenge[];
 }
 
 export const listChallenges = api(
-  { method: "GET", path: "/challenge/list", expose: true, auth: true },
-  async (): Promise<ListChallengesResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+  { method: "GET", path: "/challenge/list/:userId", expose: true },
+  async (req: ListChallengesRequest): Promise<ListChallengesResponse> => {
+    const userId = req.userId;
 
     const challenges = await challengeDB.query<Challenge>`
       SELECT 
@@ -54,6 +56,11 @@ export const listChallenges = api(
       LIMIT 50
     `;
 
-    return { challenges };
+    const challengeArray: Challenge[] = [];
+    for await (const challenge of challenges) {
+      challengeArray.push(challenge);
+    }
+    
+    return { challenges: challengeArray };
   }
 );

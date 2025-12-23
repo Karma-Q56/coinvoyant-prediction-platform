@@ -14,12 +14,12 @@ export default function AchievementsPage() {
 
   const { data: achievementsData } = useQuery({
     queryKey: ['achievements', user?.id],
-    queryFn: () => backend.user.listAchievements(),
+    queryFn: () => backend.user.listAchievements({ userId: user!.id }),
     enabled: !!user,
   });
 
   const checkAchievementsMutation = useMutation({
-    mutationFn: () => backend.user.checkAchievements(),
+    mutationFn: () => backend.user.checkAchievements({ userId: user?.id || 0 }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['achievements'] });
       if (data.newAchievements.length > 0) {

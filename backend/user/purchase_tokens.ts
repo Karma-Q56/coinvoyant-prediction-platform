@@ -58,6 +58,13 @@ export const purchaseTokens = api<PurchaseTokensRequest, PurchaseTokensResponse>
 
       await tx.commit();
 
+      const { checkAchievementsForUser } = await import("./check_achievements_internal");
+      try {
+        await checkAchievementsForUser(req.userId);
+      } catch (err) {
+        console.error("Failed to check achievements:", err);
+      }
+
       return {
         etAdded: etToAdd,
         ptAdded: ptToAdd,

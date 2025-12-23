@@ -1,5 +1,4 @@
 import { api } from "encore.dev/api";
-import { getAuthData } from "~encore/auth";
 import { challengeDB } from "./db";
 
 interface PendingChallenge {
@@ -12,15 +11,18 @@ interface PendingChallenge {
   createdAt: Date;
 }
 
+interface PendingChallengesRequest {
+  userId: number;
+}
+
 interface PendingChallengesResponse {
   challenges: PendingChallenge[];
 }
 
 export const getPendingChallenges = api(
-  { method: "GET", path: "/challenge/pending", expose: true, auth: true },
-  async (): Promise<PendingChallengesResponse> => {
-    const auth = getAuthData()!;
-    const userId = auth.userID;
+  { method: "GET", path: "/challenge/pending/:userId", expose: true },
+  async (req: PendingChallengesRequest): Promise<PendingChallengesResponse> => {
+    const userId = req.userId;
 
     const challenges = await challengeDB.query<PendingChallenge>`
       SELECT 
@@ -38,6 +40,11 @@ export const getPendingChallenges = api(
       ORDER BY c.created_at DESC
     `;
 
-    return { challenges };
+    const challengeArray: PendingChallenge[] = [];
+    for await (const challenge of challenges) {
+      challengeArray.push(challenge);
+    }
+    
+    return { challenges: challengeArray };
   }
 );

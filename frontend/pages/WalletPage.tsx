@@ -286,6 +286,7 @@ export default function WalletPage() {
         open={showAdModal}
         onOpenChange={setShowAdModal}
         adsWatchedToday={0}
+        userId={user?.id || 0}
       />
     </div>
   );

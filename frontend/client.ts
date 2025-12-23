@@ -223,15 +223,15 @@ export namespace challenge {
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_challenge_create_challenge_createChallenge>
         }
 
-        public async getPendingChallenges(): Promise<ResponseType<typeof api_challenge_get_pending_challenges_getPendingChallenges>> {
+        public async getPendingChallenges(params: { userId: number }): Promise<ResponseType<typeof api_challenge_get_pending_challenges_getPendingChallenges>> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/challenge/pending`, {method: "GET", body: undefined})
+            const resp = await this.baseClient.callTypedAPI(`/challenge/pending/${encodeURIComponent(params.userId)}`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_challenge_get_pending_challenges_getPendingChallenges>
         }
 
-        public async listChallenges(): Promise<ResponseType<typeof api_challenge_list_challenges_listChallenges>> {
+        public async listChallenges(params: { userId: number }): Promise<ResponseType<typeof api_challenge_list_challenges_listChallenges>> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/challenge/list`, {method: "GET", body: undefined})
+            const resp = await this.baseClient.callTypedAPI(`/challenge/list/${encodeURIComponent(params.userId)}`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_challenge_list_challenges_listChallenges>
         }
     }
@@ -393,15 +393,15 @@ export namespace user {
             this.watchAd = this.watchAd.bind(this)
         }
 
-        public async checkAchievements(): Promise<ResponseType<typeof api_user_check_achievements_checkAchievements>> {
+        public async checkAchievements(params: RequestType<typeof api_user_check_achievements_checkAchievements>): Promise<ResponseType<typeof api_user_check_achievements_checkAchievements>> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/user/check-achievements`, {method: "POST", body: undefined})
+            const resp = await this.baseClient.callTypedAPI(`/user/check-achievements`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_check_achievements_checkAchievements>
         }
 
-        public async generateChallengeId(): Promise<ResponseType<typeof api_user_generate_challenge_id_generateChallengeId>> {
+        public async generateChallengeId(params: RequestType<typeof api_user_generate_challenge_id_generateChallengeId>): Promise<ResponseType<typeof api_user_generate_challenge_id_generateChallengeId>> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/user/generate-challenge-id`, {method: "POST", body: undefined})
+            const resp = await this.baseClient.callTypedAPI(`/user/generate-challenge-id`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_generate_challenge_id_generateChallengeId>
         }
 
@@ -474,9 +474,9 @@ export namespace user {
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_transactions_getTransactions>
         }
 
-        public async listAchievements(): Promise<ResponseType<typeof api_user_list_achievements_listAchievements>> {
+        public async listAchievements(params: { userId: number }): Promise<ResponseType<typeof api_user_list_achievements_listAchievements>> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/user/achievements`, {method: "GET", body: undefined})
+            const resp = await this.baseClient.callTypedAPI(`/user/achievements/${encodeURIComponent(params.userId)}`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_list_achievements_listAchievements>
         }
 
@@ -525,15 +525,15 @@ export namespace user {
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_save_leaderboard_snapshot_saveLeaderboardSnapshot>
         }
 
-        public async upgradePremium(): Promise<ResponseType<typeof api_user_upgrade_premium_upgradePremium>> {
+        public async upgradePremium(params: RequestType<typeof api_user_upgrade_premium_upgradePremium>): Promise<ResponseType<typeof api_user_upgrade_premium_upgradePremium>> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/user/upgrade-premium`, {method: "POST", body: undefined})
+            const resp = await this.baseClient.callTypedAPI(`/user/upgrade-premium`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_upgrade_premium_upgradePremium>
         }
 
-        public async watchAd(): Promise<ResponseType<typeof api_user_watch_ad_watchAd>> {
+        public async watchAd(params: RequestType<typeof api_user_watch_ad_watchAd>): Promise<ResponseType<typeof api_user_watch_ad_watchAd>> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/user/watch-ad`, {method: "POST", body: undefined})
+            const resp = await this.baseClient.callTypedAPI(`/user/watch-ad`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_watch_ad_watchAd>
         }
     }
