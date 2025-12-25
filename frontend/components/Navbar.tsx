@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield, BarChart3, Swords, Star, Sparkles, TrendingUp } from 'lucide-react';
+import { Coins, Trophy, Wallet, User, LogOut, Home, Target, Gift, Menu, Settings, Shield, BarChart3, Swords, Star, Sparkles, TrendingUp, ChevronDown } from 'lucide-react';
 import backend from '~backend/client';
 
 export default function Navbar() {
@@ -33,6 +33,8 @@ export default function Navbar() {
 
     checkAdminStatus();
   }, [user]);
+
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const NavLink = ({ to, icon: Icon, children, onClick }: { to: string; icon: any; children: React.ReactNode; onClick?: () => void }) => (
     <Link to={to} onClick={onClick}>
@@ -65,30 +67,165 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-2">
             {user ? (
               <>
-                <NavLink to="/" icon={Home}>Home</NavLink>
-                <NavLink to="/dashboard" icon={BarChart3}>Dashboard</NavLink>
-                <NavLink to="/predictions" icon={Target}>Predictions</NavLink>
-                <NavLink to="/my-predictions" icon={Trophy}>My Predictions</NavLink>
-                <NavLink to="/sweepstakes" icon={Gift}>Sweepstakes</NavLink>
-                <NavLink to="/wallet" icon={Wallet}>Wallet</NavLink>
-                <NavLink to="/leaderboard" icon={Trophy}>Leaderboards</NavLink>
-                <NavLink to="/challenges" icon={Swords}>Challenges</NavLink>
-                <NavLink to="/achievements" icon={Star}>Achievements</NavLink>
-                <NavLink to="/analytics" icon={TrendingUp}>Analytics</NavLink>
-                <NavLink to="/premium" icon={Sparkles}>Premium</NavLink>
-                {isAdmin && (
-                  <NavLink to="/admin" icon={Shield}>Admin</NavLink>
-                )}
+                <Link to="/">
+                  <Button
+                    variant={isActive('/') ? 'default' : 'ghost'}
+                    size="sm"
+                    className={isActive('/') ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-gray-200 hover:text-white hover:bg-gray-700'}
+                  >
+                    <Home className="h-4 w-4 mr-2" />
+                    Home
+                  </Button>
+                </Link>
+                <Link to="/predictions">
+                  <Button
+                    variant={isActive('/predictions') ? 'default' : 'ghost'}
+                    size="sm"
+                    className={isActive('/predictions') ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-gray-200 hover:text-white hover:bg-gray-700'}
+                  >
+                    <Target className="h-4 w-4 mr-2" />
+                    Predictions
+                  </Button>
+                </Link>
+                <Link to="/sweepstakes">
+                  <Button
+                    variant={isActive('/sweepstakes') ? 'default' : 'ghost'}
+                    size="sm"
+                    className={isActive('/sweepstakes') ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-gray-200 hover:text-white hover:bg-gray-700'}
+                  >
+                    <Gift className="h-4 w-4 mr-2" />
+                    Sweepstakes
+                  </Button>
+                </Link>
+                <Link to="/challenges">
+                  <Button
+                    variant={isActive('/challenges') ? 'default' : 'ghost'}
+                    size="sm"
+                    className={isActive('/challenges') ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-gray-200 hover:text-white hover:bg-gray-700'}
+                  >
+                    <Swords className="h-4 w-4 mr-2" />
+                    Challenges
+                  </Button>
+                </Link>
+
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowMoreMenu(!showMoreMenu)}
+                    className="text-gray-200 hover:text-white hover:bg-gray-700"
+                  >
+                    More
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                  </Button>
+                  {showMoreMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50">
+                      <div className="py-1 flex flex-col space-y-1 p-2">
+                        <Link to="/dashboard" onClick={() => setShowMoreMenu(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                          >
+                            <BarChart3 className="h-4 w-4 mr-2" />
+                            Dashboard
+                          </Button>
+                        </Link>
+                        <Link to="/my-predictions" onClick={() => setShowMoreMenu(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                          >
+                            <Trophy className="h-4 w-4 mr-2" />
+                            My Predictions
+                          </Button>
+                        </Link>
+                        <Link to="/leaderboard" onClick={() => setShowMoreMenu(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                          >
+                            <Trophy className="h-4 w-4 mr-2" />
+                            Leaderboards
+                          </Button>
+                        </Link>
+                        <Link to="/achievements" onClick={() => setShowMoreMenu(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                          >
+                            <Star className="h-4 w-4 mr-2" />
+                            Achievements
+                          </Button>
+                        </Link>
+                        <Link to="/analytics" onClick={() => setShowMoreMenu(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                          >
+                            <TrendingUp className="h-4 w-4 mr-2" />
+                            Analytics
+                          </Button>
+                        </Link>
+                        <Link to="/wallet" onClick={() => setShowMoreMenu(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                          >
+                            <Wallet className="h-4 w-4 mr-2" />
+                            Wallet
+                          </Button>
+                        </Link>
+                        <Link to="/premium" onClick={() => setShowMoreMenu(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                          >
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Premium
+                          </Button>
+                        </Link>
+                        {isAdmin && (
+                          <Link to="/admin" onClick={() => setShowMoreMenu(false)}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full justify-start text-gray-200 hover:text-white hover:bg-gray-700"
+                            >
+                              <Shield className="h-4 w-4 mr-2" />
+                              Admin
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex items-center space-x-2 text-sm px-2">
                   <span className="text-yellow-400 font-medium">🪙 {user.etBalance}</span>
                   <span className="text-purple-400 font-medium">🔮 {user.ptBalance}</span>
                 </div>
 
-                <NavLink to="/profile" icon={User}>{user.username}</NavLink>
+                <Link to="/profile">
+                  <Button
+                    variant={isActive('/profile') ? 'default' : 'ghost'}
+                    size="sm"
+                    className={isActive('/profile') ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-gray-200 hover:text-white hover:bg-gray-700'}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    {user.username}
+                  </Button>
+                </Link>
 
                 <Button
                   variant="ghost"
@@ -96,8 +233,7 @@ export default function Navbar() {
                   onClick={logout}
                   className="text-gray-200 hover:text-white hover:bg-gray-700"
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  <span>Logout</span>
+                  <LogOut className="h-4 w-4" />
                 </Button>
               </>
             ) : (
