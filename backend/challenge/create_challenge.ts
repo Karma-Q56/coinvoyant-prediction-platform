@@ -1,5 +1,7 @@
 import { api } from "encore.dev/api";
 import { challengeDB } from "./db";
+import { user } from "~encore/clients";
+import { prediction } from "~encore/clients";
 
 interface CreateChallengeRequest {
   userId: number;
@@ -19,29 +21,40 @@ export const createChallenge = api(
   async (req: CreateChallengeRequest): Promise<CreateChallengeResponse> => {
     const userId = req.userId;
 
-    const opponent = await challengeDB.queryRow`
-      SELECT id, pt_balance FROM users WHERE challenge_id = ${req.opponentChallengeId}
-    `;
+    const opponent = await user.findByChallengeId({ challengeId: req.opponentChallengeId });
 
-    if (!opponent) {
-      throw new Error("Opponent not found");
-    }
+    await user.deductTokens({
+      userId: userId,
+      amount: req.stake,
+      description: `Challenge stake for prediction ${req.predictionId}`,
+    });
 
-    const userBalance = await challengeDB.queryRow<{ pt_balance: number }>`
-      SELECT pt_balance FROM users WHERE id = ${userId}
-    `;
-
-    if (!userBalance || userBalance.pt_balance < req.stake) {
-      throw new Error("Insufficient tokens");
-    }
-
-    await challengeDB.exec`
-      UPDATE users SET pt_balance = pt_balance - ${req.stake} WHERE id = ${userId}
-    `;
+    const predictionInfo = await prediction.getPrediction({ predictionId: req.predictionId });
+    const challengerInfo = await user.getUsername({ userId: userId });
 
     const result = await challengeDB.queryRow<{ id: number }>`
-      INSERT INTO challenges (prediction_id, challenger_id, opponent_id, challenger_stake, challenger_choice, status)
-      VALUES (${req.predictionId}, ${userId}, ${opponent.id}, ${req.stake}, ${req.choice}, 'pending')
+      INSERT INTO challenges (
+        prediction_id, 
+        challenger_id, 
+        opponent_id, 
+        challenger_stake, 
+        challenger_choice, 
+        status,
+        prediction_title,
+        challenger_username,
+        opponent_username
+      )
+      VALUES (
+        ${req.predictionId}, 
+        ${userId}, 
+        ${opponent.id}, 
+        ${req.stake}, 
+        ${req.choice}, 
+        'pending',
+        ${predictionInfo.title},
+        ${challengerInfo.username},
+        ${opponent.username}
+      )
       RETURNING id
     `;
 

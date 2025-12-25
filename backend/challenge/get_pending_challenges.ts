@@ -26,18 +26,16 @@ export const getPendingChallenges = api(
 
     const challenges = await challengeDB.query<PendingChallenge>`
       SELECT 
-        c.id,
-        c.prediction_id as "predictionId",
-        p.title as "predictionTitle",
-        u.username as "challengerUsername",
-        c.challenger_stake as "challengerStake",
-        c.challenger_choice as "challengerChoice",
-        c.created_at as "createdAt"
-      FROM challenges c
-      JOIN predictions p ON c.prediction_id = p.id
-      JOIN users u ON c.challenger_id = u.id
-      WHERE c.opponent_id = ${userId} AND c.status = 'pending'
-      ORDER BY c.created_at DESC
+        id,
+        prediction_id as "predictionId",
+        prediction_title as "predictionTitle",
+        challenger_username as "challengerUsername",
+        challenger_stake as "challengerStake",
+        challenger_choice as "challengerChoice",
+        created_at as "createdAt"
+      FROM challenges
+      WHERE opponent_id = ${userId} AND status = 'pending'
+      ORDER BY created_at DESC
     `;
 
     const challengeArray: PendingChallenge[] = [];

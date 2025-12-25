@@ -1,5 +1,6 @@
 import { api } from "encore.dev/api";
 import { challengeDB } from "./db";
+import { user } from "~encore/clients";
 
 interface AcceptChallengeRequest {
   userId: number;
@@ -36,17 +37,11 @@ export const acceptChallenge = api(
       throw new Error("Challenge already accepted or resolved");
     }
 
-    const userBalance = await challengeDB.queryRow<{ pt_balance: number }>`
-      SELECT pt_balance FROM users WHERE id = ${userId}
-    `;
-
-    if (!userBalance || userBalance.pt_balance < challenge.challenger_stake) {
-      throw new Error("Insufficient tokens");
-    }
-
-    await challengeDB.exec`
-      UPDATE users SET pt_balance = pt_balance - ${challenge.challenger_stake} WHERE id = ${userId}
-    `;
+    await user.deductTokens({
+      userId: userId,
+      amount: challenge.challenger_stake,
+      description: `Challenge acceptance for challenge ${req.challengeId}`,
+    });
 
     await challengeDB.exec`
       UPDATE challenges 

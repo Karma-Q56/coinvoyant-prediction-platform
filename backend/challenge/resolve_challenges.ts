@@ -1,9 +1,7 @@
 import { api } from "encore.dev/api";
 import { challengeDB } from "./db";
-import { SQLDatabase } from "encore.dev/storage/sqldb";
-
-const predictionDB = SQLDatabase.named("prediction");
-const userDB = SQLDatabase.named("user");
+import { prediction } from "~encore/clients";
+import { user } from "~encore/clients";
 
 interface ResolveChallengesRequest {
   predictionId: number;
@@ -16,14 +14,14 @@ interface ResolveChallengesResponse {
 export const resolveChallenges = api(
   { method: "POST", path: "/challenge/resolve/:predictionId", expose: false },
   async (req: ResolveChallengesRequest): Promise<ResolveChallengesResponse> => {
-    const prediction = await predictionDB.queryRow<{
-      correct_option: string | null;
-      status: string;
-    }>`
-      SELECT correct_option, status FROM predictions WHERE id = ${req.predictionId}
-    `;
+    let predictionInfo;
+    try {
+      predictionInfo = await prediction.getPrediction({ predictionId: req.predictionId });
+    } catch {
+      return { resolvedCount: 0 };
+    }
 
-    if (!prediction || prediction.status !== "resolved" || !prediction.correct_option) {
+    if (predictionInfo.status !== "resolved" || !predictionInfo.correctOption) {
       return { resolvedCount: 0 };
     }
 
@@ -45,7 +43,7 @@ export const resolveChallenges = api(
     let resolvedCount = 0;
 
     for (const challenge of activeChallenges) {
-      const correctAnswer = prediction.correct_option === "true" || prediction.correct_option === "Yes";
+      const correctAnswer = predictionInfo.correctOption === "true" || predictionInfo.correctOption === "Yes";
       
       let winnerId: number | null = null;
       let totalStake = challenge.challenger_stake + challenge.opponent_stake;
@@ -65,18 +63,15 @@ export const resolveChallenges = api(
       `;
 
       if (winnerId) {
-        await userDB.exec`
-          UPDATE users
-          SET pt_balance = pt_balance + ${totalStake},
-              head2head_wins = head2head_wins + 1,
-              updated_at = NOW()
-          WHERE id = ${winnerId}
-        `;
+        await user.addTokens({
+          userId: winnerId,
+          amount: totalStake,
+          description: "Head-to-Head Challenge Win",
+        });
 
-        await userDB.exec`
-          INSERT INTO transactions (user_id, type, amount, currency, description)
-          VALUES (${winnerId}, 'h2h_win', ${totalStake}, 'PT', 'Head-to-Head Challenge Win')
-        `;
+        await user.incrementH2HWins({
+          userId: winnerId,
+        });
 
         const { checkAchievementsForUser } = await import("../user/check_achievements_internal");
         try {
@@ -85,27 +80,17 @@ export const resolveChallenges = api(
           console.error(`Failed to check achievements for user ${winnerId}:`, err);
         }
       } else {
-        await userDB.exec`
-          UPDATE users
-          SET pt_balance = pt_balance + ${challenge.challenger_stake}
-          WHERE id = ${challenge.challenger_id}
-        `;
+        await user.addTokens({
+          userId: challenge.challenger_id,
+          amount: challenge.challenger_stake,
+          description: "Head-to-Head Draw Refund",
+        });
 
-        await userDB.exec`
-          UPDATE users
-          SET pt_balance = pt_balance + ${challenge.opponent_stake}
-          WHERE id = ${challenge.opponent_id}
-        `;
-
-        await userDB.exec`
-          INSERT INTO transactions (user_id, type, amount, currency, description)
-          VALUES (${challenge.challenger_id}, 'h2h_draw', ${challenge.challenger_stake}, 'PT', 'Head-to-Head Draw Refund')
-        `;
-
-        await userDB.exec`
-          INSERT INTO transactions (user_id, type, amount, currency, description)
-          VALUES (${challenge.opponent_id}, 'h2h_draw', ${challenge.opponent_stake}, 'PT', 'Head-to-Head Draw Refund')
-        `;
+        await user.addTokens({
+          userId: challenge.opponent_id,
+          amount: challenge.opponent_stake,
+          description: "Head-to-Head Draw Refund",
+        });
       }
 
       resolvedCount++;
