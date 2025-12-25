@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -30,9 +31,11 @@ const queryClient = new QueryClient();
 function AppInner() {
   return (
     <AuthProvider>
-      <div className="flex flex-col min-h-screen bg-gray-900 text-white">
-        <Navbar />
-        <main className="flex-1 container mx-auto py-4 md:py-8 px-4">
+      <div className="flex min-h-screen bg-gray-900 text-white">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Navbar />
+          <main className="flex-1 container mx-auto py-4 md:py-8 px-4">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -54,8 +57,9 @@ function AppInner() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/resolution-queue" element={<ResolutionQueuePage />} />
           </Routes>
-        </main>
-        <Toaster />
+          </main>
+          <Toaster />
+        </div>
       </div>
     </AuthProvider>
   );
