@@ -30,9 +30,9 @@ const queryClient = new QueryClient();
 function AppInner() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-900 text-white">
+      <div className="flex flex-col min-h-screen bg-gray-900 text-white">
         <Navbar />
-        <main className="container mx-auto py-4 md:py-8">
+        <main className="flex-1 container mx-auto py-4 md:py-8 px-4">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
